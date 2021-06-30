@@ -44,12 +44,12 @@ public struct Lock {
     }
 
     /// Executes block after lock is acquired and releases it immediately afterwards.
-    public func synchronized<T>(_ block: () -> T) -> T {
+    public func synchronized<T>(_ block: () throws -> T) rethrows -> T {
         semaphore.wait()
         defer {
             semaphore.signal()
         }
-        return block()
+        return try block()
     }
     
     /// Designated initializer
