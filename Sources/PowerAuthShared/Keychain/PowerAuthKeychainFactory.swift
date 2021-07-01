@@ -18,10 +18,10 @@ import Foundation
 
 /// The `PowerAuthKeychainFactory` allows you to create objects implementing `PowerAuthKeychain` protocol.
 /// The created keychain instances are internally cached. The factory class also supports an automatic cleanup
-/// of content of keychains after application re-install. The content of keychain may survive the application
-/// reinstall, depending on the operating system version. So, it's recommended to cleanup all content stored in
-/// keychains after application reinstall. To achieve this, you can keep a boolean information in volatile storage
-/// that lost its content after reinstall. That's typically `UserDefauls` on iOS.
+/// of the content of keychains after application reinstallation. The content of the keychain may survive the
+/// application reinstall, depending on the operating system version. So, it's recommended to clean up all
+/// content stored in keychains after application reinstallation. To achieve this, you can keep boolean
+/// information in volatile storage that lost its content after reinstall. That's typical `UserDefauls` on iOS.
 public final class PowerAuthKeychainFactory {
     
     /// Thread synchronization primitive
@@ -50,21 +50,20 @@ public final class PowerAuthKeychainFactory {
     /// - Throws: `PowerAuthKeychainError.invalidAccessGroup` if `accessGroup` parameter doesn't match previously created keychain with the same identifier.
     /// - Returns: `PowerAuthKeychain` object.
     public func keychain(identifier: String, accessGroup: String? = nil) throws -> PowerAuthKeychain {
-        let keyId = "\(identifier)##\(accessGroup ?? "no-acg")"
         return try lock.synchronized {
-            if let keychain = instances[keyId] {
-                if keychain.accessGroup != accessGroup {
+            if let keychain = instances[identifier] {
+                guard keychain.accessGroup == accessGroup else {
                     throw PowerAuthKeychainError.invalidAccessGroup
                 }
                 return keychain
             }
             let newKeychain = buildKeychain(identifier: identifier, accessGroup: accessGroup)
-            if removeContentOnFirstAccess && !instancesAlreadyCleanedUp.contains(keyId) {
+            if removeContentOnFirstAccess && !instancesAlreadyCleanedUp.contains(identifier) {
                 D.print("Removing ALL data stored in keychain: \(identifier)")
-                instancesAlreadyCleanedUp.insert(keyId)
+                instancesAlreadyCleanedUp.insert(identifier)
                 try newKeychain.removeAll()
             }
-            instances[keyId] = newKeychain
+            instances[identifier] = newKeychain
             return newKeychain
         }
     }

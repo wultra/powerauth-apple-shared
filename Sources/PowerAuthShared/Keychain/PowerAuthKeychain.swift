@@ -116,7 +116,7 @@ public extension PowerAuthKeychain {
     ///   - data: Bytes to store.
     ///   - key: Key to store data.
     /// - Throws: `PowerAuthKeychainError` in case of failure.
-    func set(data: Data, for key: String, access: PowerAuthKeychainItemAccess) throws {
+    func set(_ data: Data, for key: String, access: PowerAuthKeychainItemAccess) throws {
         return try set(data, forKey: key, access: access, replace: true)
     }
 }
