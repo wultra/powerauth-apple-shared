@@ -41,6 +41,11 @@ public protocol PowerAuthKeychain {
     /// Contains keychain's access group.
     var accessGroup: String? { get }
     
+    /// Execute multiple modiffications on keychain in one synchronized block.
+    /// - Parameter block: Closure where you can perform multiple changes with this keychain in thread-safe manner.
+    ///                    The object returned from the block will be returned as a result of this function.
+    func synchronized<T>(block: () throws -> T) rethrows -> T
+    
     /// Returns a boolean value indicating that keychain contains data for the requested key.
     ///
     /// - Parameter key: Key to evaluate.
@@ -87,6 +92,25 @@ public protocol PowerAuthKeychain {
 }
 
 public extension PowerAuthKeychain {
+    
+    /// Get binary data from the keychain for given key. If keychain doesn't contains such data, then
+    /// store new value to the keychain and return this value.
+    /// 
+    /// - Parameters:
+    ///   - key: Key to previously stored data.
+    ///   - closure: Closure that provides new data.
+    /// - Throws: `PowerAuthKeychainError` in case of failure.
+    /// - Returns: Previously stored data or new one, created by provided closure.
+    func data(forKey key: String, orSet closure: @autoclosure () throws -> Data) rethrows -> Data {
+        return try synchronized {
+            if let data = try data(forKey: key) {
+                return data
+            }
+            let newData = try closure()
+            try set(newData, forKey: key)
+            return newData
+        }
+    }
     
     /// Get binary data from the keychain for given key.
     ///

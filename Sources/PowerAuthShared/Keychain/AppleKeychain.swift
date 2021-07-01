@@ -19,7 +19,7 @@ import LocalAuthentication
 
 /// Class implementing `PowerAuthKeychain` protocol on Apple platforms.
 class AppleKeychain: PowerAuthKeychain {
-
+    
     /// Construct keychain with given identifier and optional access group.
     /// - Parameters:
     ///   - identifier: Keychain identifier
@@ -33,6 +33,10 @@ class AppleKeychain: PowerAuthKeychain {
     
     let identifier: String
     let accessGroup: String?
+    
+    func synchronized<T>(block: () throws -> T) rethrows -> T {
+        D.fatalError("Not implemented yet")
+    }
     
     func set(_ data: Data, forKey key: String, access: PowerAuthKeychainItemAccess, replace: Bool) throws {
         D.fatalError("Not implemented yet")

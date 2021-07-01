@@ -81,6 +81,15 @@ public class PowerAuthDebug {
     public static func fatalError(_ message: @autoclosure () -> String = "", file: StaticString = #file, line: UInt = #line) -> Never {
         Swift.fatalError(message(), file: file, line: line)
     }
+    
+    /// Unconditionally prints "Not implemented yet" message and stops execution.
+    /// - Parameters:
+    ///   - file: The file name to print with message. The default is file path where fatalError is called for DEBUG configuration, empty string for other
+    ///   - line: The line number to print along with message. The default is the line number where fatalError is called.
+    public static func notImplementedYet(file: StaticString = #file, line: UInt = #line) -> Never {
+        Swift.fatalError("Not implemented yet", file: file, line: line)
+    }
+    
     #else
     /// Unconditionally prints a given message and stops execution
     ///
@@ -88,8 +97,16 @@ public class PowerAuthDebug {
     ///   - message: The string to print. The default is an empty string.
     ///   - file: The file name to print with message. The default is file path where fatalError is called for DEBUG configuration, emptry string for other
     ///   - line: The line number to print along with message. The default is the line number where fatalError is called.
-    public static func fatalError(_ message: @autoclosure () -> String = "", file: StaticString = "", line: UInt = #line) -> Never {
-        Swift.fatalError(message(), file: file, line: line)
+    public static func fatalError(_ message: @autoclosure () -> String = "") -> Never {
+        Swift.fatalError(message(), file: "", line: 1)
+    }
+    
+    /// Unconditionally prints "Not implemented yet" message and stops execution.
+    /// - Parameters:
+    ///   - file: The file name to print with message. The default is file path where fatalError is called for DEBUG configuration, empty string for other
+    ///   - line: The line number to print along with message. The default is the line number where fatalError is called.
+    public static func notImplementedYet() -> Never {
+        Swift.fatalError("Not implemented yet", file: "", line: 1)
     }
     #endif
 }
