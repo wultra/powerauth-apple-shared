@@ -17,29 +17,42 @@
 import Foundation
 import LocalAuthentication
 
+/// Class implementing `PowerAuthKeychain` protocol on Apple platforms.
 class AppleKeychain: PowerAuthKeychain {
 
-    let identifier: String
-    let accessGroup: String?
-    
+    /// Construct keychain with given identifier and optional access group.
+    /// - Parameters:
+    ///   - identifier: Keychain identifier
+    ///   - accessGroup: Access group
     init(identifier: String, accessGroup: String?) {
         self.identifier = identifier
         self.accessGroup = accessGroup
     }
+
+    // MARK: - PowerAuthKeychain protocol -
     
-    func contains(dataFor key: String) -> Bool {
+    let identifier: String
+    let accessGroup: String?
+    
+    func set(_ data: Data, forKey key: String, access: PowerAuthKeychainItemAccess, replace: Bool) throws {
         D.fatalError("Not implemented yet")
     }
     
-    func remove(key: String) throws {
+    func data(forKey key: String, authentication: LAContext?) throws -> Data? {
         D.fatalError("Not implemented yet")
     }
     
-    func set(data: Data, for key: String, access: PowerAuthKeychainItemAccess, replace: Bool) throws {
+    func containsData(forKey key: String) -> Bool {
         D.fatalError("Not implemented yet")
     }
     
-    func data(for key: String, authentication: LAContext?) throws -> Data? {
+    func remove(forKey key: String) throws {
         D.fatalError("Not implemented yet")
     }
+    
+    func removeAll() throws {
+        D.fatalError("Not implemented yet")
+    }
+    
+    // MARK: - Internals -
 }
