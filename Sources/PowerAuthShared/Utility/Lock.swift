@@ -17,39 +17,22 @@
 import Foundation
 import Dispatch
 
-/// The Lock class is a simple thread synchronization primitive which provides
-/// simple lock / unlock methods and synchronized block execution.
+/// The `Lock` structure is a simple thread synchronization primitive which provides
+/// simple lock / unlock methods.
 ///
 /// The `DispatchSemafore` is used as underlying synchronization primitive.
-public struct Lock {
+public struct Lock: Locking {
     
-    /// Attempts to acquire a lock, blocking a thread’s execution
-    /// until the lock can be acquired.
     public func lock() {
         semaphore.wait()
     }
-    
-    /// Attempts to acquire a lock for a limited time, blocking a thread’s
-    /// execution until the lock can be acquired or timeout elapsed.
-    /// - Parameter timeout: Timeout for lock acquire
-    /// - Returns: true if lock has been acquired
-    public func tryLock(timeout: TimeInterval) -> Bool {
-        let time = DispatchTime.now() + .milliseconds(Int(timeout * 1000.0))
-        return semaphore.wait(timeout: time) == .success
+
+    public func tryLock() -> Bool {
+        return semaphore.wait(timeout: .now()) == .success
     }
     
-    /// Releases a previously acquired lock.
     public func unlock() {
         semaphore.signal()
-    }
-
-    /// Executes block after lock is acquired and releases it immediately afterwards.
-    public func synchronized<T>(_ block: () throws -> T) rethrows -> T {
-        semaphore.wait()
-        defer {
-            semaphore.signal()
-        }
-        return try block()
     }
     
     /// Designated initializer

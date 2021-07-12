@@ -35,27 +35,27 @@ class AppleKeychain: PowerAuthKeychain {
     let accessGroup: String?
     
     func synchronized<T>(block: () throws -> T) rethrows -> T {
-        D.fatalError("Not implemented yet")
+        D.notImplementedYet()
     }
     
     func set(_ data: Data, forKey key: String, access: PowerAuthKeychainItemAccess, replace: Bool) throws {
-        D.fatalError("Not implemented yet")
+        D.notImplementedYet()
     }
     
     func data(forKey key: String, authentication: LAContext?) throws -> Data? {
-        D.fatalError("Not implemented yet")
+        D.notImplementedYet()
     }
     
     func containsData(forKey key: String) -> Bool {
-        D.fatalError("Not implemented yet")
+        D.notImplementedYet()
     }
     
     func remove(forKey key: String) throws {
-        D.fatalError("Not implemented yet")
+        D.notImplementedYet()
     }
     
     func removeAll() throws {
-        D.fatalError("Not implemented yet")
+        D.notImplementedYet()
     }
     
     // MARK: - Internals -
