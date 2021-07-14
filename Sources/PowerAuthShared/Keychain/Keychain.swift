@@ -88,7 +88,9 @@ public protocol Keychain {
 public extension Keychain {
     
     /// Get binary data from the keychain for given key. If keychain doesn't contains such data, then
-    /// store new value to the keychain and return this value.
+    /// store new value to the keychain and return this value. In this function variant, you can specify
+    /// `KeychainPrompt` to authenticate with biometry while accessing the data and `KeychainItemAccess`
+    /// returned from the closure.
     /// 
     /// - Parameters:
     ///   - key: Key to previously stored data.
@@ -118,6 +120,22 @@ public extension Keychain {
             }
             return newData
         }
+    }
+    
+    /// Get binary data from the keychain for given key. If keychain doesn't contains such data, then
+    /// store new value to the keychain and return this value. In this function variant, you cannot specify `KeychainPrompt`
+    /// and `KeychainItemAccess`.
+    ///
+    /// - Parameters:
+    ///   - key: Key to previously stored data.
+    ///   - closure: Closure that provides new data.
+    /// - Throws:
+    ///   - `KeychainError.missingAuthentication` if item requires user to authenticate but authentication object is missing.
+    ///   - `KeychainError.changedFromElsewhere` if content of keychain has been modified from other application or process.
+    ///   - `KeychainError.other` in case of other error.
+    /// - Returns: Previously stored data or new one, created by provided closure.
+    func data(forKey key: String, orSet closure: @autoclosure () throws -> Data) throws -> Data {
+        return try data(forKey: key, authentication: nil, orSet: (closure(), .none))
     }
     
     /// Get binary data from the keychain for given key. The previously stored data must not require authentication to retrieve.
