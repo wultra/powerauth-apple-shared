@@ -12,16 +12,17 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions
 // and limitations under the License.
-//
+// 
+
+#if os(watchOS) || os(tvOS)
 
 import Foundation
-
-public enum PowerAuthKeychainError: Error {
-    case alreadySet
-    case cancel
-    case missingAuthentication
-    case biometryNotAvailable
-    case biometryFailure
-    case invalidAccessGroup
-    case generalFailure(code: Int)
+public extension BiometryInfo {
+    /// Static property that returns full information about biometry on the system. The resturned structure contains
+    /// information about supported type (Touch ID or Face ID) and also actual biometry status (N/A, not enrolled, etc.)
+    static var current: BiometryInfo {
+        BiometryInfo(biometryType: .none, currentStatus: .notSupported)
+    }
 }
+
+#endif // #if os(watchOS) || os(tvOS)

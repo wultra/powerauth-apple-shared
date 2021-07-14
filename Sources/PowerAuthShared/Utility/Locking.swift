@@ -16,7 +16,6 @@
 
 import Foundation
 
-
 /// Protocol defining methods for thread synchronization.
 public protocol Locking {
     

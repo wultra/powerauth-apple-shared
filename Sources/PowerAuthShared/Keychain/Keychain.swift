@@ -15,25 +15,10 @@
 //
 
 import Foundation
-import LocalAuthentication
 
-/// The `PowerAuthKeychainItemAccess` enumeration defines additional protection
-/// of item stored in the keychain.
-public enum PowerAuthKeychainItemAccess {
-    /// No additional authentication is required to access the item.
-    case none
-    /// Constraint to access an item with Touch ID for currently enrolled fingers,
-    /// or from Face ID with the currently enrolled user.
-    case currentBiometricSet
-    /// Constraint to access an item with Touch ID for any enrolled fingers, or Face ID.
-    case anyBiometricSet
-    /// Constraint to access an item with any enrolled biometry or device's passcode.
-    case anyBiometricSetOrDevicePasscode
-}
-
-/// The `PowerAuthKeychain` protocol defines a basic interface for storing a data to
+/// The `Keychain` protocol defines a basic interface for storing a data to
 /// a system provided keychain.
-public protocol PowerAuthKeychain {
+public protocol Keychain {
     
     /// Contains keychain's identifier.
     var identifier: String { get }
@@ -42,6 +27,7 @@ public protocol PowerAuthKeychain {
     var accessGroup: String? { get }
     
     /// Execute multiple modiffications on keychain in one synchronized block.
+    ///
     /// - Parameter block: Closure where you can perform multiple changes with this keychain in thread-safe manner.
     ///                    The object returned from the block will be returned as a result of this function.
     func synchronized<T>(block: () throws -> T) rethrows -> T
@@ -49,20 +35,22 @@ public protocol PowerAuthKeychain {
     /// Returns a boolean value indicating that keychain contains data for the requested key.
     ///
     /// - Parameter key: Key to evaluate.
+    /// - Throws:
+    ///   - `KeychainError.other` in case of unexpected error.
     /// - Returns: `true` if keychain contains data for the requested key.
-    func containsData(forKey key: String) -> Bool
+    func containsData(forKey key: String) throws -> Bool
     
     /// Removes data for given key. If you try to remove non-existent data, then does nothing.
     ///
     /// - Parameter key: Key to data to remove.
     /// - Throws:
-    ///   - `PowerAuthKeychainError.generalFialure(code)` - In case of other error.
+    ///   - `KeychainError.other` in case of unexpected error.
     func remove(forKey key: String) throws
     
     
     /// Removes all content stored in this keychain.
     /// - Throws:
-    ///   - `PowerAuthKeychainError.generalFialure(code)` - In case of other error.
+    ///   - `KeychainError.other` in case of unexpected error.
     func removeAll() throws
     
     /// Get binary data from the keychain for given key. If authentication parameter is provided, then
@@ -70,14 +58,15 @@ public protocol PowerAuthKeychain {
     ///
     /// - Parameters:
     ///   - key: Key to previously stored data.
-    ///   - authentication: `LAContext` authentication object, if provided, then authentication dialog may appear.
+    ///   - authentication: `KeychainPrompt` structure, if provided, then local authentication dialog may appear.
     /// - Throws:
-    ///   - `PowerAuthKeychainError.cancel` - If user cancel authenticatication dialog.
-    ///   - `PowerAuthKeychainError.biometryNotAvailable` - If biometric authentication is requested but is not available on the device.
-    ///   - `PowerAuthKeychainError.missingAuthentication` if item requires user to authenticate but authentication object is missing.
-    ///   - `PowerAuthKeychainError.generalFialure(code)` - In case of other error.
+    ///   - `KeychainError.userCancel` if user cancel authenticatication dialog.
+    ///   - `KeychainError.biometryNotAvailable` if biometric authentication is requested but is not available on the device.
+    ///   - `KeychainError.missingAuthentication` if item requires user to authenticate but authentication object is missing.
+    ///   - `KeychainError.disabledAuthentication` if keychain prompt is provided, but cointains `LAContext` that does not allow interaction.
+    ///   - `KeychainError.other` in case of other error.
     /// - Returns: Retrieved data or `nil` if keychain has no such item stored for given key.
-    func data(forKey key: String, authentication: LAContext?) throws -> Data?
+    func data(forKey key: String, authentication: KeychainPrompt?) throws -> Data?
     
     /// Set binary data to keychain for given key with required item protection and option to replace
     /// value.
@@ -86,12 +75,16 @@ public protocol PowerAuthKeychain {
     ///   - data: Bytes to store.
     ///   - key: Key to store data.
     ///   - access: Type of protection of stored item.
-    ///   - replace: If `true` then existing value is replaced. If set to `false` then throws
-    /// - Throws: `PowerAuthKeychainError` in case of failure.
-    func set(_ data: Data, forKey key: String, access: PowerAuthKeychainItemAccess, replace: Bool) throws
+    ///   - replace: If `true` then existing value is replaced. If set to `false` then throws error if item already exists.
+    /// - Throws:
+    ///   - `KeychainError.itemExists` if `replace` is `false` and data already exists in the keychain.
+    ///   - `KeychainError.biometryNotAvailable` if other than `KeychainItemAccess.none` is requested and biometric authentication is not available right now.
+    ///   - `KeychainError.changedFromElsewhere` if content of keychain has been modified from other application or process.
+    ///   - `KeychainError.other` for all other underlying failures.
+    func set(_ data: Data, forKey key: String, access: KeychainItemAccess, replace: Bool) throws
 }
 
-public extension PowerAuthKeychain {
+public extension Keychain {
     
     /// Get binary data from the keychain for given key. If keychain doesn't contains such data, then
     /// store new value to the keychain and return this value.
@@ -99,7 +92,7 @@ public extension PowerAuthKeychain {
     /// - Parameters:
     ///   - key: Key to previously stored data.
     ///   - closure: Closure that provides new data.
-    /// - Throws: `PowerAuthKeychainError` in case of failure.
+    /// - Throws: `KeychainError` in case of failure.
     /// - Returns: Previously stored data or new one, created by provided closure.
     func data(forKey key: String, orSet closure: @autoclosure () throws -> Data) rethrows -> Data {
         return try synchronized {
@@ -116,7 +109,7 @@ public extension PowerAuthKeychain {
     ///
     /// - Parameter key: Key to previously stored data.
     /// - Throws:
-    ///   - `PowerAuthKeychainError.missingAuthentication` if item requires user to authenticate
+    ///   - `KeychainError.missingAuthentication` if item requires user to authenticate
     /// - Returns: Retrieved data or `nil` if keychain has no such item stored for given key.
     func data(forKey key: String) throws -> Data? {
         return try data(forKey: key, authentication: nil)
@@ -128,7 +121,7 @@ public extension PowerAuthKeychain {
     /// - Parameters:
     ///   - data: Bytes to store.
     ///   - key: Key to store data.
-    /// - Throws: `PowerAuthKeychainError` in case of failure.
+    /// - Throws: `KeychainError` in case of failure.
     func set(_ data: Data, forKey key: String) throws {
         return try set(data, forKey: key, access: .none, replace: true)
     }
@@ -139,8 +132,8 @@ public extension PowerAuthKeychain {
     /// - Parameters:
     ///   - data: Bytes to store.
     ///   - key: Key to store data.
-    /// - Throws: `PowerAuthKeychainError` in case of failure.
-    func set(_ data: Data, for key: String, access: PowerAuthKeychainItemAccess) throws {
+    /// - Throws: `KeychainError` in case of failure.
+    func set(_ data: Data, for key: String, access: KeychainItemAccess) throws {
         return try set(data, forKey: key, access: access, replace: true)
     }
 }
