@@ -89,6 +89,9 @@ class AppleKeychain: Keychain {
                         throw KeychainError.disabledAuthentication
                     case .userCanceled:
                         throw KeychainError.userCancel
+                    case .authFailed:
+                        // FaceID permission not granted, or other authentication failure
+                        throw KeychainError.biometryNotAvailable
                     default:
                         break
                 }
