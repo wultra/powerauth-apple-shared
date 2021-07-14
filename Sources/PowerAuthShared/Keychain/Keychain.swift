@@ -154,7 +154,7 @@ public extension Keychain {
     ///   - `KeychainError.biometryNotAvailable` if other than `KeychainItemAccess.none` is requested and biometric authentication is not available right now.
     ///   - `KeychainError.changedFromElsewhere` if content of keychain has been modified from other application or process.
     ///   - `KeychainError.other` for all other underlying failures.
-    func set(_ data: Data, for key: String, access: KeychainItemAccess) throws {
+    func set(_ data: Data, forKey key: String, access: KeychainItemAccess) throws {
         return try set(data, forKey: key, access: access, replace: true)
     }
 }
