@@ -106,6 +106,31 @@ public enum KeychainError: Error {
     case other(reason: OtherReason)
 }
 
+extension KeychainError: LocalizedError {
+    public var errorDescription: String? {
+        switch self {
+            case .biometryNotAvailable:
+                return "Biometric authentication is not available"
+            case .invalidKey:
+                return "Key is empty or contains reserved string"
+            case .invalidAccessGroup:
+                return "Invalid access group. You must use the same access group for the same keychain identifier"
+            case .itemExists:
+                return "Item exists"
+            case .userCancel:
+                return "User did cancel authentication dialog"
+            case .missingAuthentication:
+                return "KeychainPrompt is required for accessing this item"
+            case .disabledAuthentication:
+                return "KeychainPrompt contains LAContext that prevents interactive authentication"
+            case .changedFromElsewhere:
+                return "The content was changed from elsewhere."
+            case .other(let reason):
+                return "Other failure: \(reason)"
+        }
+    }
+}
+
 extension KeychainError.SecurityFrameworkError {
     
     /// Translate `OSStatus` to `KeychainError.SecurityFrameworkError`
