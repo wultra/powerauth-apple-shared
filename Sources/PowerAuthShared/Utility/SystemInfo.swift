@@ -16,14 +16,20 @@
 
 import Foundation
 
-/// The `SystemInfo` structure contains information about the operating system
+/// The `SystemInfo` structure contains information about the current platform and device.
 public struct SystemInfo {
+    
     /// Platform, such as `iOS`, `macOS`.
-    let platform: String
-    /// Device name, for example
-    let deviceName: String
-    let isSimulator: Bool
-    let isDebugLibrary: Bool
+    public let platform: String
+    
+    /// Device name, for example `"iPhone12,3"`.
+    public let deviceName: String
+    
+    /// Application is running on simulator.
+    public let isSimulator: Bool
+    
+    /// Application is linked with DEBUG library.
+    public let isDebugLibrary: Bool
 }
 
 public extension SystemInfo {

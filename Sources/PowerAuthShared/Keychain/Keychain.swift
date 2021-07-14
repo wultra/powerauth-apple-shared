@@ -58,7 +58,8 @@ public protocol Keychain {
     ///
     /// - Parameters:
     ///   - key: Key to previously stored data.
-    ///   - authentication: `KeychainPrompt` structure, if provided, then local authentication dialog may appear.
+    ///   - authentication: `KeychainPrompt` structure required for accessing data stored with access restricted with `KeychainItemAccess`.
+    ///     You can use `nil` for items with no restriction.
     /// - Throws:
     ///   - `KeychainError.userCancel` if user cancel authenticatication dialog.
     ///   - `KeychainError.biometryNotAvailable` if biometric authentication is requested but is not available on the device.
@@ -91,48 +92,68 @@ public extension Keychain {
     /// 
     /// - Parameters:
     ///   - key: Key to previously stored data.
-    ///   - closure: Closure that provides new data.
-    /// - Throws: `KeychainError` in case of failure.
+    ///   - authentication: `KeychainPrompt` structure required for accessing data stored with access restricted with `KeychainItemAccess`.
+    ///     Use `nil` for items that doesn't require authentication to retrieve.
+    ///   - closure: Closure that provides new data. The returned tuple contains new data to be set and type of protection for new item.
+    /// - Throws:
+    ///   - `KeychainError.userCancel` if user cancel authenticatication dialog.
+    ///   - `KeychainError.biometryNotAvailable` if biometric authentication is requested but is not available on the device.
+    ///   - `KeychainError.missingAuthentication` if item requires user to authenticate but authentication object is missing.
+    ///   - `KeychainError.disabledAuthentication` if keychain prompt is provided, but cointains `LAContext` that does not allow interaction.
+    ///   - `KeychainError.changedFromElsewhere` if content of keychain has been modified from other application or process.
+    ///   - `KeychainError.other` in case of other error.
     /// - Returns: Previously stored data or new one, created by provided closure.
-    func data(forKey key: String, orSet closure: @autoclosure () throws -> Data) rethrows -> Data {
+    func data(forKey key: String, authentication: KeychainPrompt? = nil, orSet closure: @autoclosure () throws -> (newData: Data, access: KeychainItemAccess)) rethrows -> Data {
         return try synchronized {
             if let data = try data(forKey: key) {
                 return data
             }
-            let newData = try closure()
-            try set(newData, forKey: key)
+            let (newData, access) = try closure()
+            do {
+                // Do not replace item, we already know that item doesn't exist.
+                try set(newData, forKey: key, access: access, replace: false)
+            } catch KeychainError.itemExists {
+                // If item exists, then content has been changed from elsewhere
+                throw KeychainError.changedFromElsewhere
+            }
             return newData
         }
     }
     
-    /// Get binary data from the keychain for given key.
+    /// Get binary data from the keychain for given key. The previously stored data must not require authentication to retrieve.
     ///
     /// - Parameter key: Key to previously stored data.
     /// - Throws:
-    ///   - `KeychainError.missingAuthentication` if item requires user to authenticate
+    ///   - `KeychainError.missingAuthentication` if item requires user to authenticate but authentication object is missing.
+    ///   - `KeychainError.other` in case of other error.
     /// - Returns: Retrieved data or `nil` if keychain has no such item stored for given key.
     func data(forKey key: String) throws -> Data? {
         return try data(forKey: key, authentication: nil)
     }
     
     /// Set binary data to keychain for given key with no item protection. If keychain already contains
-    /// item for given key, then the old data is replaced with new one.
+    /// item for given key, then the old data is replaced.
     ///
     /// - Parameters:
     ///   - data: Bytes to store.
     ///   - key: Key to store data.
-    /// - Throws: `KeychainError` in case of failure.
+    /// - Throws:
+    ///   - `KeychainError.changedFromElsewhere` if content of keychain has been modified from other application or process.
+    ///   - `KeychainError.other` for all other underlying failures.
     func set(_ data: Data, forKey key: String) throws {
         return try set(data, forKey: key, access: .none, replace: true)
     }
     
     /// Set binary data to keychain for given key with required item protection. If keychain already contains
-    /// item for given key, then the old data is replaced with new one.
+    /// item for given key, then the old data is replaced.
     ///
     /// - Parameters:
     ///   - data: Bytes to store.
     ///   - key: Key to store data.
-    /// - Throws: `KeychainError` in case of failure.
+    /// - Throws:
+    ///   - `KeychainError.biometryNotAvailable` if other than `KeychainItemAccess.none` is requested and biometric authentication is not available right now.
+    ///   - `KeychainError.changedFromElsewhere` if content of keychain has been modified from other application or process.
+    ///   - `KeychainError.other` for all other underlying failures.
     func set(_ data: Data, for key: String, access: KeychainItemAccess) throws {
         return try set(data, forKey: key, access: access, replace: true)
     }

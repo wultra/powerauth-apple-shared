@@ -48,10 +48,10 @@ public struct BiometryInfo {
     }
 
     /// Type of supported biometric authentication on the system.
-    let biometryType: BiometryType
+    public let biometryType: BiometryType
 
     /// Current status of supported biometry on the system.
-    let currentStatus: BiometryStatus
+    public let currentStatus: BiometryStatus
 }
 
 
