@@ -95,7 +95,6 @@ public extension Keychain {
     /// - Parameters:
     ///   - key: Key to previously stored data.
     ///   - authentication: `KeychainPrompt` structure required for accessing data stored with access restricted with `KeychainItemAccess`.
-    ///     Use `nil` for items that doesn't require authentication to retrieve.
     ///   - closure: Closure that provides new data. The returned tuple contains new data to be set and type of protection for new item.
     /// - Throws:
     ///   - `KeychainError.userCancel` if user cancel authenticatication dialog.
@@ -105,7 +104,7 @@ public extension Keychain {
     ///   - `KeychainError.changedFromElsewhere` if content of keychain has been modified from other application or process.
     ///   - `KeychainError.other` in case of other error.
     /// - Returns: Previously stored data or new one, created by provided closure.
-    func data(forKey key: String, authentication: KeychainPrompt? = nil, orSet closure: @autoclosure () throws -> (newData: Data, access: KeychainItemAccess)) throws -> Data {
+    func data(forKey key: String, authentication: KeychainPrompt, orSet closure: @autoclosure () throws -> (newData: Data, access: KeychainItemAccess)) throws -> Data {
         return try synchronized {
             if let data = try data(forKey: key) {
                 return data
@@ -135,7 +134,20 @@ public extension Keychain {
     ///   - `KeychainError.other` in case of other error.
     /// - Returns: Previously stored data or new one, created by provided closure.
     func data(forKey key: String, orSet closure: @autoclosure () throws -> Data) throws -> Data {
-        return try data(forKey: key, authentication: nil, orSet: (closure(), .none))
+        return try synchronized {
+            if let data = try data(forKey: key) {
+                return data
+            }
+            let newData = try closure()
+            do {
+                // Do not replace item, we already know that item doesn't exist.
+                try set(newData, forKey: key, access: .none, replace: false)
+            } catch KeychainError.itemExists {
+                // If item exists, then content has been changed from elsewhere
+                throw KeychainError.changedFromElsewhere
+            }
+            return newData
+        }
     }
     
     /// Get binary data from the keychain for given key. The previously stored data must not require authentication to retrieve.
