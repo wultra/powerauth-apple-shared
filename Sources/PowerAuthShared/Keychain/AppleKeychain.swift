@@ -131,7 +131,7 @@ class AppleKeychain: Keychain {
                 .set(key: key)
                 .build()
             let status = SecItemDelete(query)
-            guard status == errSecSuccess else {
+            guard status == errSecSuccess || status == errSecItemNotFound else {
                 throw KeychainError.wrap(secError: status)
             }
         }
@@ -143,9 +143,7 @@ class AppleKeychain: Keychain {
             let query = try baseQuery(skipAccessGroup: true)
                 .build()
             let status = SecItemDelete(query)
-            if status == errSecSuccess {
-            }
-            guard status == errSecSuccess else {
+            guard status == errSecSuccess || status == errSecItemNotFound else {
                 throw KeychainError.wrap(secError: status)
             }
         }
