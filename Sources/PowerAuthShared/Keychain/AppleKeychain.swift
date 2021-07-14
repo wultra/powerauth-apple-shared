@@ -56,7 +56,7 @@ class AppleKeychain: Keychain {
             if useUpdate {
                 try updateImpl(data, forKey: key)
             } else {
-                try addImpl(data, forKey: key, access: access, replace: true)
+                try addImpl(data, forKey: key, access: access, replace: replace)
             }
         }
     }
