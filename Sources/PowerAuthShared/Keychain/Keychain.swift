@@ -103,7 +103,7 @@ public extension Keychain {
     ///   - `KeychainError.changedFromElsewhere` if content of keychain has been modified from other application or process.
     ///   - `KeychainError.other` in case of other error.
     /// - Returns: Previously stored data or new one, created by provided closure.
-    func data(forKey key: String, authentication: KeychainPrompt? = nil, orSet closure: @autoclosure () throws -> (newData: Data, access: KeychainItemAccess)) rethrows -> Data {
+    func data(forKey key: String, authentication: KeychainPrompt? = nil, orSet closure: @autoclosure () throws -> (newData: Data, access: KeychainItemAccess)) throws -> Data {
         return try synchronized {
             if let data = try data(forKey: key) {
                 return data
