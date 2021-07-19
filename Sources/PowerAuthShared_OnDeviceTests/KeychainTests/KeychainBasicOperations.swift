@@ -16,6 +16,7 @@
 
 import Foundation
 import PowerAuthShared
+import LocalAuthentication
 
 class BasicKeychainOperations: TestCase {
     
@@ -29,6 +30,8 @@ class BasicKeychainOperations: TestCase {
     
     func run() throws {
         try testStoreRestoreData()
+        try testMissingAuthentication()
+        try testDisabledAuthentication()
     }
     
     func testStoreRestoreData() throws {
@@ -79,6 +82,68 @@ class BasicKeychainOperations: TestCase {
         
         try keychain.set(randomData2, forKey: "Key3")
         try assertEqual(randomData2, try keychain.data(forKey: "Key3"))
+    }
+    
+    func testMissingAuthentication() throws {
+        
+        D.print("--- \(name).testMissingAuthentication")
+        
+        guard BiometryInfo.current.currentStatus == .available else {
+            D.error("--- \(name).testMissingAuthentication require enrolled biometry")
+            return
+        }
+        
+        let keychain = try factory.keychain(identifier: "testKeychain.BasicKeychainOperations")
+        let randomData1 = Data.random(count: 128)
+        try keychain.set(randomData1, forKey: "AuthKey1", access: .anyBiometricSet)
+        
+        do {
+            _ = try keychain.data(forKey: "AuthKey1")
+            try alwaysFail()
+        } catch KeychainError.missingAuthentication {
+        }
+        
+        try keychain.remove(forKey: "AuthKey1")
+        try keychain.set(randomData1, forKey: "AuthKey1", access: .currentBiometricSet)
+        do {
+            _ = try keychain.data(forKey: "AuthKey1")
+            try alwaysFail()
+        } catch KeychainError.missingAuthentication {
+        }
+    }
+    
+    func testDisabledAuthentication() throws {
+        
+        D.print("--- \(name).testDisabledAuthentication")
+        
+        guard BiometryInfo.current.currentStatus == .available else {
+            D.error("--- \(name).testDisabledAuthentication require enrolled biometry")
+            return
+        }
+        
+        let keychain = try factory.keychain(identifier: "testKeychain.BasicKeychainOperations")
+        let randomData1 = Data.random(count: 128)
+        try keychain.set(randomData1, forKey: "AuthKey1", access: .anyBiometricSet)
+        
+        do {
+            let context = LAContext()
+            context.localizedReason = "PowerAuthShared tests"
+            context.interactionNotAllowed = true
+            _ = try keychain.data(forKey: "AuthKey1", authentication: KeychainPrompt(with: context))
+            try alwaysFail()
+        } catch KeychainError.disabledAuthentication {
+        }
+        
+        try keychain.remove(forKey: "AuthKey1")
+        try keychain.set(randomData1, forKey: "AuthKey1", access: .currentBiometricSet)
+        do {
+            let context = LAContext()
+            context.localizedReason = "PowerAuthShared tests"
+            context.interactionNotAllowed = true
+            _ = try keychain.data(forKey: "AuthKey1", authentication: KeychainPrompt(with: context))
+            try alwaysFail()
+        } catch KeychainError.missingAuthentication {
+        }
     }
 
 }
