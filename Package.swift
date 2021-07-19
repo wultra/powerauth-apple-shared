@@ -13,6 +13,9 @@ let package = Package(
         .library(
             name: "PowerAuthShared",
             targets: ["PowerAuthShared"]),
+        .library(
+            name: "PowerAuthShared_OnDeviceTests",
+            targets: ["PowerAuthShared_OnDeviceTests"])
     ],
     dependencies: [
     ],
@@ -20,6 +23,9 @@ let package = Package(
         .target(
             name: "PowerAuthShared",
             dependencies: []),
+        .target(
+            name: "PowerAuthShared_OnDeviceTests",
+            dependencies: ["PowerAuthShared"]),
         .testTarget(
             name: "PowerAuthSharedTests",
             dependencies: ["PowerAuthShared"]),
