@@ -121,6 +121,11 @@ class BasicKeychainOperations: TestCase {
             return
         }
         
+        guard #available(iOS 13.0, macOS 10.15, *) else {
+            D.error("--- \(name).testDisabledAuthentication require iOS 13, macOS 10.15 to run")
+            return
+        }
+        
         let keychain = try factory.keychain(identifier: "testKeychain.BasicKeychainOperations")
         let randomData1 = Data.random(count: 128)
         try keychain.set(randomData1, forKey: "AuthKey1", access: .anyBiometricSet)
