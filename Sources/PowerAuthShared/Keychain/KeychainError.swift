@@ -47,6 +47,8 @@ public enum KeychainError: Error {
     /// This may happen when a keychain shared between multiple applications, or multiple application extensions is used.
     case changedFromElsewhere
     
+    /// Setting a new value over the biometry protected item failed. You must remove such item first and then set a new value.
+    case removeProtectedItemFirst
     
     /// The underlying failure reason for `.other(reason:)` error case.
     public enum OtherReason: Error {
@@ -123,6 +125,8 @@ extension KeychainError: LocalizedError {
                 return "Invalid access group. You must use the same access group for the same keychain identifier"
             case .itemExists:
                 return "Item exists"
+            case .removeProtectedItemFirst:
+                return "Remove protected item first, then set new data"
             case .userCancel:
                 return "User did cancel authentication dialog"
             case .missingAuthentication:

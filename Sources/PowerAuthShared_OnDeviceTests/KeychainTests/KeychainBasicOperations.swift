@@ -32,6 +32,8 @@ class BasicKeychainOperations: TestCase {
         try testStoreRestoreData()
         try testMissingAuthentication()
         try testDisabledAuthentication()
+        try testUpdateProtectedItem()
+        try testUpdateAndProtect()
     }
     
     func testStoreRestoreData() throws {
@@ -128,27 +130,70 @@ class BasicKeychainOperations: TestCase {
         
         let keychain = try factory.keychain(identifier: "testKeychain.BasicKeychainOperations")
         let randomData1 = Data.random(count: 128)
-        try keychain.set(randomData1, forKey: "AuthKey1", access: .anyBiometricSet)
+        try keychain.set(randomData1, forKey: "AuthKey2", access: .anyBiometricSet)
         
         do {
             let context = LAContext()
             context.localizedReason = "PowerAuthShared tests"
             context.interactionNotAllowed = true
-            _ = try keychain.data(forKey: "AuthKey1", authentication: KeychainPrompt(with: context))
+            _ = try keychain.data(forKey: "AuthKey2", authentication: KeychainPrompt(with: context))
             try alwaysFail()
         } catch KeychainError.disabledAuthentication {
         }
         
-        try keychain.remove(forKey: "AuthKey1")
-        try keychain.set(randomData1, forKey: "AuthKey1", access: .currentBiometricSet)
+        try keychain.remove(forKey: "AuthKey2")
+        try keychain.set(randomData1, forKey: "AuthKey2", access: .currentBiometricSet)
         do {
             let context = LAContext()
             context.localizedReason = "PowerAuthShared tests"
             context.interactionNotAllowed = true
-            _ = try keychain.data(forKey: "AuthKey1", authentication: KeychainPrompt(with: context))
+            _ = try keychain.data(forKey: "AuthKey2", authentication: KeychainPrompt(with: context))
+            try alwaysFail()
+        } catch KeychainError.disabledAuthentication {
+        }
+    }
+    
+    func testUpdateProtectedItem() throws {
+        D.print("--- \(name).testUpdateProtectedItem")
+        
+        guard BiometryInfo.current.currentStatus == .available else {
+            D.error("--- \(name).testUpdateWithNoAuth require enrolled biometry")
+            return
+        }
+        
+        let randomData1 = Data.random(count: 128)
+        let randomData2 = Data.random(count: 128)
+        
+        let keychain = try factory.keychain(identifier: "testKeychain.BasicKeychainOperations")
+        try keychain.set(randomData1, forKey: "AuthKey3", access: .anyBiometricSet)
+        do {
+            try keychain.set(randomData2, forKey: "AuthKey3", access: .anyBiometricSet)
+        } catch KeychainError.removeProtectedItemFirst {
+        }
+    }
+
+    func testUpdateAndProtect() throws {
+        D.print("--- \(name).testUpdateWithNoAuth")
+        
+        guard BiometryInfo.current.currentStatus == .available else {
+            D.error("--- \(name).testUpdateWithNoAuth require enrolled biometry")
+            return
+        }
+        
+        let randomData1 = Data.random(count: 128)
+        let randomData2 = Data.random(count: 128)
+        
+        let keychain = try factory.keychain(identifier: "testKeychain.BasicKeychainOperations")
+        try keychain.set(randomData1, forKey: "AuthKey4", access: .none)
+        
+        let stored = try keychain.data(forKey: "AuthKey4")
+        try assertEqual(randomData1, stored)
+        
+        try keychain.set(randomData2, forKey: "AuthKey4", access: .anyBiometricSet)
+        do {
+            _ = try keychain.data(forKey: "AuthKey4")
             try alwaysFail()
         } catch KeychainError.missingAuthentication {
         }
     }
-
 }

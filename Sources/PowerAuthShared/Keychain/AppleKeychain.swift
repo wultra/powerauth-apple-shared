@@ -60,7 +60,7 @@ final class AppleKeychain: PrivateKeychain {
             }
             let useUpdate = replace ? try containsData(forKey: key) : false
             if useUpdate {
-                try updateImpl(data, forKey: key)
+                try updateImpl(data, forKey: key, access: access)
             } else {
                 try addImpl(data, forKey: key, access: access, replace: replace)
             }
@@ -78,6 +78,8 @@ final class AppleKeychain: PrivateKeychain {
                     throw KeychainError.biometryNotAvailable
                 }
                 queryBuilder.set(prompt: authentication)
+            } else {
+                queryBuilder.setNoUI()
             }
             let query = try queryBuilder.build()
             // Execute query
@@ -90,10 +92,12 @@ final class AppleKeychain: PrivateKeychain {
                 switch KeychainError.SecurityFrameworkError.from(status: status) {
                     case .itemNotFound:
                         return nil
-                    case .interactionRequired:
-                        throw KeychainError.missingAuthentication
                     case .interactionNotAllowed:
-                        throw KeychainError.disabledAuthentication
+                        if authentication == nil {
+                            throw KeychainError.missingAuthentication
+                        } else {
+                            throw KeychainError.disabledAuthentication
+                        }
                     case .userCanceled:
                         throw KeychainError.userCancel
                     case .authFailed:
@@ -152,9 +156,7 @@ final class AppleKeychain: PrivateKeychain {
     func removeAll() throws {
         try lock.synchronized {
             try checkValidInstance()
-            // TODO: this looks like a bug, we need to test it whether access group is required or not.
-            let query = try baseQuery(skipAccessGroup: true)
-                .build()
+            let query = try baseQuery().build()
             let status = SecItemDelete(query)
             guard status == errSecSuccess || status == errSecItemNotFound else {
                 throw KeychainError.wrap(secError: status)
@@ -183,17 +185,20 @@ final class AppleKeychain: PrivateKeychain {
     /// - Parameters:
     ///   - data: Data to store to keychain.
     ///   - key: Key to store data.
+    ///   - access: Type of protection of stored item.
     /// - Throws:
     ///   - `KeychainError.changedFromElsewhere` if data is not present in underlying keychain.
+    ///   - `KeychainError.removeProtectedItemFirst` if updating protected item.
     ///   - `KeychainError.other()` for all other underlying failures.
-    private func updateImpl(_ data: Data, forKey key: String) throws {
+    private func updateImpl(_ data: Data, forKey key: String, access: KeychainItemAccess) throws {
         // Update an existing data
         let query = try baseQuery()
             .set(data: data, forKey: key)
+            .setNoUI()
             .build()
         let dataToUpdate = try QueryBuilder()
             .set(data: data, forKey: key)
-            .set(access: .none)
+            .set(access: access)
             .build()
         // Execute update query
         let status = SecItemUpdate(query, dataToUpdate)
@@ -206,6 +211,10 @@ final class AppleKeychain: PrivateKeychain {
                     // This may sometime happen when keychain shared between multiple applications, or application
                     // extensions is used.
                     throw KeychainError.changedFromElsewhere
+                case .interactionNotAllowed:
+                    // Item requiers authentication to modify. Application must remove item first and then set a new value.
+                    throw KeychainError.removeProtectedItemFirst
+                    
                 default:
                     break
             }
@@ -256,11 +265,10 @@ final class AppleKeychain: PrivateKeychain {
     
     /// Returns internal `QueryBuilder` with base query for Sec* operations. The base query contains identification of keychain,
     /// and access group, if group is specified.
-    /// - Parameter skipAccessGroup: If `true` then configured access group is not added to base query. The default value is `false`.
     /// - Returns: Dictionary with base query specific for this keychain setup.
-    private func baseQuery(skipAccessGroup: Bool = false) -> QueryBuilder {
+    private func baseQuery() -> QueryBuilder {
         // Skip access group on simulators.
-        if !(skipAccessGroup || SystemInfo.isSimulator), let accessGroup = accessGroup {
+        if !SystemInfo.isSimulator, let accessGroup = accessGroup {
             return QueryBuilder(with: [
                 kSecClass: kSecClassGenericPassword,
                 kSecAttrService: identifier,
@@ -283,14 +291,14 @@ fileprivate class QueryBuilder {
     typealias Query = [CFString:Any]
     
     /// Content of query
-    var query: Query
+    private var query: Query
     
-    var noUI = false
-    var usePrompt = false
-    var returnData = false
-    var key: String?
-    var data: Data?
-    var access: KeychainItemAccess?
+    private var noUI = false
+    private var usePrompt = false
+    private var returnData = false
+    private var key: String?
+    private var data: Data?
+    private var access: KeychainItemAccess?
     
     
     /// Initialize query builder with base query.
@@ -521,5 +529,4 @@ fileprivate extension KeychainError {
             return KeychainError.other(reason: .securityFrameworkOther(errorCode: secError))
         }
     }
-    
 }

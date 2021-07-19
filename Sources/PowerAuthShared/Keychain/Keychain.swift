@@ -80,6 +80,7 @@ public protocol Keychain: AnyObject {
     /// - Throws:
     ///   - `KeychainError.itemExists` if `replace` is `false` and data already exists in the keychain.
     ///   - `KeychainError.biometryNotAvailable` if other than `KeychainItemAccess.none` is requested and biometric authentication is not available right now.
+    ///   - `KeychainError.removeProtectedItemFirst` if overwriting item with `KeychainItemAccess` protection. You must remove such item first and then set the new value.
     ///   - `KeychainError.changedFromElsewhere` if content of keychain has been modified from other application or process.
     ///   - `KeychainError.other` for all other underlying failures.
     func set(_ data: Data, forKey key: String, access: KeychainItemAccess, replace: Bool) throws
@@ -168,6 +169,7 @@ public extension Keychain {
     ///   - data: Bytes to store.
     ///   - key: Key to store data.
     /// - Throws:
+    ///   - `KeychainError.removeProtectedItemFirst` if overwriting item with `KeychainItemAccess` protection. You must remove such item first and then set the new value.
     ///   - `KeychainError.changedFromElsewhere` if content of keychain has been modified from other application or process.
     ///   - `KeychainError.other` for all other underlying failures.
     func set(_ data: Data, forKey key: String) throws {
@@ -182,6 +184,7 @@ public extension Keychain {
     ///   - key: Key to store data.
     /// - Throws:
     ///   - `KeychainError.biometryNotAvailable` if other than `KeychainItemAccess.none` is requested and biometric authentication is not available right now.
+    ///   - `KeychainError.removeProtectedItemFirst` if overwriting item with `KeychainItemAccess` protection. You must remove such item first and then set the new value.
     ///   - `KeychainError.changedFromElsewhere` if content of keychain has been modified from other application or process.
     ///   - `KeychainError.other` for all other underlying failures.
     func set(_ data: Data, forKey key: String, access: KeychainItemAccess) throws {
