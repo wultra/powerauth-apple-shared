@@ -49,7 +49,13 @@ public enum KeychainError: Error {
     
     
     /// The underlying failure reason for `.other(reason:)` error case.
-    public enum OtherReason {
+    public enum OtherReason: Error {
+        
+        /// The Keychain instance has been invalidated by its parent factory. This error typically happens
+        /// after you call `KeychainFactory.removeAllCachedInstances()` and keep your own reference to previously
+        /// accessed keychain.
+        case keychainInstanceNoLongerValid
+        
         /// Failed to create internal Access Control object.
         case failedToCraeteAccessControlObject
         
@@ -67,7 +73,7 @@ public enum KeychainError: Error {
     
     /// The underlying failure reason for `OtherReasons.securityFramework(error:)` mapped from `errSec*` group of errors. Note that
     /// this enumeration covers only errors that are important for interacting with underlying Keychain services.
-    public enum SecurityFrameworkError {
+    public enum SecurityFrameworkError: Error {
         case unimplemented /* Function or operation not implemented. */
         case diskFull /* The disk is full. */
         case IO /* I/O error. */
@@ -126,7 +132,63 @@ extension KeychainError: LocalizedError {
             case .changedFromElsewhere:
                 return "The content was changed from elsewhere."
             case .other(let reason):
-                return "Other failure: \(reason)"
+                return "Other failure: \(reason.localizedDescription)"
+        }
+    }
+}
+
+extension KeychainError.OtherReason: LocalizedError {
+    public var errorDescription: String? {
+        switch self {
+            case .keychainInstanceNoLongerValid:
+                return "Keychain instance is no longer valid"
+            case .failedToCraeteAccessControlObject:
+                return "Failed to create Access Control object"
+            case .unexpectedResultType:
+                return "Query returned an unexpected object"
+            case .securityFrameworkOther(let errorCode):
+                return "Security framework error: \(errorCode)"
+            case .securityFramework(let error):
+                return "Security framework error: \(error.localizedDescription)"
+        }
+    }
+}
+
+extension KeychainError.SecurityFrameworkError: LocalizedError {
+    public var errorDescription: String? {
+        switch self {
+            case .unimplemented             : return "errSecUnimplemented"
+            case .diskFull                  : return "errSecDiskFull"
+            case .IO                        : return "errSecIO"
+            case .param                     : return "errSecParam"
+            case .wrPerm                    : return "errSecWrPerm"
+            case .allocate                  : return "errSecAllocate"
+            case .userCanceled              : return "errSecUserCanceled"
+            case .badReq                    : return "errSecBadReq"
+
+            case .missingEntitlement        : return "errSecMissingEntitlement"
+            case .restrictedAPI             : return "errSecRestrictedAPI"
+
+            case .notAvailable              : return "errSecNotAvailable"
+            case .readOnly                  : return "errSecReadOnly"
+            case .authFailed                : return "errSecAuthFailed"
+
+            case .duplicateItem             : return "errSecDuplicateItem"
+            case .itemNotFound              : return "errSecItemNotFound"
+            case .bufferTooSmall            : return "errSecBufferTooSmall"
+            case .dataTooLarge              : return "errSecDataTooLarge"
+
+            case .noSuchAttr                : return "errSecNoSuchAttr"
+            case .noSuchClass               : return "errSecNoSuchClass"
+            case .noDefaultKeychain         : return "errSecNoDefaultKeychain"
+            
+            case .interactionNotAllowed     : return "errSecInteractionNotAllowed"
+            case .interactionRequired       : return "errSecInteractionRequired"
+            case .dataNotAvailable          : return "errSecDataNotAvailable"
+            case .dataNotModifiable         : return "errSecDataNotModifiable"
+            
+            case .noAccessForItem           : return "errSecNoAccessForItem"
+            case .decode                    : return "errSecDecode"
         }
     }
 }
@@ -138,58 +200,32 @@ extension KeychainError.SecurityFrameworkError {
     /// - Returns: `KeychainError.SecurityFrameworkError` or nil if such constant doesn't fit our enum.
     static func from(status: OSStatus) -> KeychainError.SecurityFrameworkError? {
         switch status {
-            case errSecUnimplemented:
-                return .unimplemented
-            case errSecDiskFull:
-                return .diskFull
-            case errSecIO:
-                return .IO
-            case errSecParam:
-                return .param
-            case errSecWrPerm:
-                return .wrPerm
-            case errSecAllocate:
-                return .allocate
-            case errSecUserCanceled:
-                return .userCanceled
-            case errSecBadReq:
-                return .badReq
-            case errSecMissingEntitlement:
-                return .missingEntitlement
-            case errSecRestrictedAPI:
-                return .restrictedAPI
-            case errSecNotAvailable:
-                return notAvailable
-            case errSecReadOnly:
-                return .readOnly
-            case errSecAuthFailed:
-                return .authFailed
-            case errSecDuplicateItem:
-                return .duplicateItem
-            case errSecItemNotFound:
-                return itemNotFound
-            case errSecBufferTooSmall:
-                return .bufferTooSmall
-            case errSecDataTooLarge:
-                return .dataTooLarge
-            case errSecNoSuchAttr:
-                return .noSuchAttr
-            case errSecNoSuchClass:
-                return .noSuchClass
-            case errSecNoDefaultKeychain:
-                return noDefaultKeychain
-            case errSecInteractionNotAllowed:
-                return .interactionNotAllowed
-            case errSecInteractionRequired:
-                return .interactionNotAllowed
-            case errSecDataNotAvailable:
-                return .dataNotAvailable
-            case errSecDataNotModifiable:
-                return .dataNotModifiable
-            case errSecNoAccessForItem:
-                return .noAccessForItem
-            case errSecDecode:
-                return .decode
+            case errSecUnimplemented:           return .unimplemented
+            case errSecDiskFull:                return .diskFull
+            case errSecIO:                      return .IO
+            case errSecParam:                   return .param
+            case errSecWrPerm:                  return .wrPerm
+            case errSecAllocate:                return .allocate
+            case errSecUserCanceled:            return .userCanceled
+            case errSecBadReq:                  return .badReq
+            case errSecMissingEntitlement:      return .missingEntitlement
+            case errSecRestrictedAPI:           return .restrictedAPI
+            case errSecNotAvailable:            return .notAvailable
+            case errSecReadOnly:                return .readOnly
+            case errSecAuthFailed:              return .authFailed
+            case errSecDuplicateItem:           return .duplicateItem
+            case errSecItemNotFound:            return .itemNotFound
+            case errSecBufferTooSmall:          return .bufferTooSmall
+            case errSecDataTooLarge:            return .dataTooLarge
+            case errSecNoSuchAttr:              return .noSuchAttr
+            case errSecNoSuchClass:             return .noSuchClass
+            case errSecNoDefaultKeychain:       return .noDefaultKeychain
+            case errSecInteractionNotAllowed:   return .interactionNotAllowed
+            case errSecInteractionRequired:     return .interactionRequired
+            case errSecDataNotAvailable:        return .dataNotAvailable
+            case errSecDataNotModifiable:       return .dataNotModifiable
+            case errSecNoAccessForItem:         return .noAccessForItem
+            case errSecDecode:                  return .decode
             default:
                 return nil
         }

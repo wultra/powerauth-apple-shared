@@ -18,7 +18,7 @@ import Foundation
 
 /// The `Keychain` protocol defines a basic interface for storing a data to
 /// a system provided keychain.
-public protocol Keychain {
+public protocol Keychain: AnyObject {
     
     /// Contains keychain's identifier.
     var identifier: String { get }
@@ -187,4 +187,13 @@ public extension Keychain {
     func set(_ data: Data, forKey key: String, access: KeychainItemAccess) throws {
         return try set(data, forKey: key, access: access, replace: true)
     }
+}
+
+
+/// The `PrivateKeychain` protocol extends `Keychain` with private interfaces, not available for application programmers.
+protocol PrivateKeychain: Keychain {
+    
+    /// Set `Keychain` instance as invalid. After this call, all subsequent calls to keychain methods
+    /// must fail with `KeychainError.other(reason: .keychainInstanceNoLongerValid)`
+    func invalidateInstance()
 }

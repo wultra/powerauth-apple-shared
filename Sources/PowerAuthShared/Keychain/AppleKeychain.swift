@@ -20,9 +20,13 @@ import LocalAuthentication
 #endif
 
 /// Class implementing `Keychain` protocol on Apple platforms.
-class AppleKeychain: Keychain {
+final class AppleKeychain: PrivateKeychain {
     
-    let lock = RecursiveLock()
+    /// Internal synchronization primitive
+    private let lock = RecursiveLock()
+    
+    /// If `false` then instance has been invalidated by its parent factory.
+    private var isValidInstance = true
     
     /// Construct keychain with given identifier and optional access group.
     /// - Parameters:
@@ -40,12 +44,14 @@ class AppleKeychain: Keychain {
     
     func synchronized<T>(block: () throws -> T) rethrows -> T {
         try lock.synchronized {
-            try block()
+            try checkValidInstance()
+            return try block()
         }
     }
     
     func set(_ data: Data, forKey key: String, access: KeychainItemAccess, replace: Bool) throws {
         try lock.synchronized {
+            try checkValidInstance()
             // Validate biometry support
             if access != .none {
                 guard BiometryInfo.canUseBiometricAuthentication else {
@@ -63,6 +69,7 @@ class AppleKeychain: Keychain {
         
     func data(forKey key: String, authentication: KeychainPrompt?) throws -> Data? {
         try lock.synchronized {
+            try checkValidInstance()
             // Prepare query
             let queryBuilder = baseQuery()
                 .returnData(forKey: key)
@@ -106,6 +113,7 @@ class AppleKeychain: Keychain {
     
     func containsData(forKey key: String) throws -> Bool {
         try lock.synchronized {
+            try checkValidInstance()
             let query = try baseQuery()
                 .set(key: key)
                 .setNoUI()
@@ -130,6 +138,7 @@ class AppleKeychain: Keychain {
     
     func remove(forKey key: String) throws {
         try lock.synchronized {
+            try checkValidInstance()
             let query = try baseQuery()
                 .set(key: key)
                 .build()
@@ -142,6 +151,7 @@ class AppleKeychain: Keychain {
     
     func removeAll() throws {
         try lock.synchronized {
+            try checkValidInstance()
             // TODO: this looks like a bug, we need to test it whether access group is required or not.
             let query = try baseQuery(skipAccessGroup: true)
                 .build()
@@ -152,7 +162,20 @@ class AppleKeychain: Keychain {
         }
     }
     
+    func invalidateInstance() {
+        lock.synchronized {
+            isValidInstance = false
+        }
+    }
     
+    
+    /// Tests whether keychain instance is still valid.
+    /// - Throws: `KeychainError.other(reason: .keychainInstanceNoLongerValid)` in case instance is no longer valid.
+    private func checkValidInstance() throws {
+        guard isValidInstance else {
+            throw KeychainError.other(reason: .keychainInstanceNoLongerValid)
+        }
+    }
     
     // MARK: - Internals -
     
@@ -443,11 +466,13 @@ fileprivate class QueryBuilder {
         // Empty on purpose
     }
     #endif
-    
 }
 
 fileprivate extension KeychainItemAccess {
     #if os(iOS) || os(macOS)
+    
+    // macOS, iOS
+    
     /// Convert `KeychainItemAccess` into `SecAccessControlCreateFlags`.
     var biometryAccessControlFlags: SecAccessControlCreateFlags {
         switch self {
@@ -458,7 +483,7 @@ fileprivate extension KeychainItemAccess {
                     return .touchIDAny
                 }
             case .anyBiometricSetOrDevicePasscode:
-                return .userPresence
+                return .userPresence    // equal to [ .biometryAny, .or, .devicePasscode ]
             case .currentBiometricSet:
                 if #available(macOS 10.15, iOS 11.3, *) {
                     return .biometryCurrentSet
@@ -466,16 +491,18 @@ fileprivate extension KeychainItemAccess {
                     return .touchIDCurrentSet
                 }
             case .none:
-                // kNilOptions
-                return SecAccessControlCreateFlags(rawValue: 0)
+                return [] // kNilOptions
         }
     }
     #else
+    
+    // watchOS, tvOS
+    
     /// Convert `KeychainItemAccess` into `SecAccessControlCreateFlags`.
     var biometryAccessControlFlags: SecAccessControlCreateFlags {
-        SecAccessControlCreateFlags(rawValue: 0)    // kNilOptions
+        [] // kNilOptions
     }
-    #endif
+    #endif // #if os(iOS) || os(macOS)
 }
 
 // MARK: - Errors
