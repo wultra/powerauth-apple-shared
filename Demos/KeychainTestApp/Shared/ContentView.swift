@@ -41,7 +41,7 @@ struct ContentView: View {
             
             Button("Run tests") {
                 DispatchQueue.global().async {
-                    TestManager.allKeychainTests.runAll()
+                    _ = TestManager.allKeychainTests.runAll()
                 }
             }
         }

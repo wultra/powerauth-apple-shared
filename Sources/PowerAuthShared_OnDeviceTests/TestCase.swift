@@ -16,14 +16,64 @@
 
 import Foundation
 
-public enum TestError: Error, LocalizedError {
-    case failed
-    case failedWith(reason: Error)
-    case failedWith(message: String)
+/// Represents how much must `TestMonitor` wait when prompting for an interaction.
+public enum TestMonitorWait {
+    /// Represents a short wait time interval.
+    case short
+    /// Represents a long wait time interval.
+    case long
 }
 
+
+/// Defines interface for tests to report additional errors or prompt for user's interaction.
+public protocol TestMonitor {
+    
+    /// Prompt for user's interaction.
+    /// - Parameters:
+    ///   - message: Message to display to prompt.
+    ///   - wait: How much prompt must wait before execution will continue.
+    func promptForInteraction(_ message: String, wait: TestMonitorWait)
+    
+    /// Add additional warning to the test result.
+    /// - Parameter message: Warning to add.
+    func warning(_ message: String)
+    
+    /// Add additional error to the test result.
+    /// - Parameter message: Error to add.
+    func error(_ message: String)
+    
+    
+    /// If test case contains additional functions, then you can increase the total tests count with this function.
+    func increaseTestCount()
+    
+    /// If test case contains additional functions, then you can increase the total failed tests count with this function.
+    func increaseFailedTestCount()
+    
+    /// Collected additional errors.
+    var errors: [String] { get }
+    
+    /// Collected additional warnings.
+    var warnings: [String] { get }
+}
+
+public extension TestMonitor {
+    
+    /// Prompt for interaction with short wait.
+    /// - Parameter message: Message to display.
+    func promptForInteraction(_ message: String) {
+        promptForInteraction(message, wait: .short)
+    }
+}
+
+
+/// Defines interface that test case must implement
 public protocol TestCase {
+    /// Name of test
     var name: String { get }
-    init() throws
-    func run() throws
+
+    /// Contains `true` if test needs real user's interaction.
+    var isInteractive: Bool { get }
+    
+    /// Run all sub-tests with given `TestMonitor`
+    func run(with monitor: TestMonitor) throws
 }

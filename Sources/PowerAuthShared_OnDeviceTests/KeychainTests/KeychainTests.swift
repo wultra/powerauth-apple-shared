@@ -21,8 +21,9 @@ public extension TestManager {
     static var allKeychainTests: TestManager {
         TestManager(name: "Keychain") {
             [
-                try BasicKeychainOperations(),
-                try KeychainFactoryTests()
+                AppleKeychainTests(),
+                FakeKeychainTests(dumpOperations: false),
+                KeychainFactoryTests()
             ]
         }
     }

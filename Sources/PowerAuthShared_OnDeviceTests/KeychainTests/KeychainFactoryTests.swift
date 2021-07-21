@@ -27,11 +27,9 @@ final class KeychainFactoryTests: TestCase {
     let accessGroup2 = "com.wultra.powerAuthShared.accessGroup2"
     
     let name = "KeychainFactoryTests"
+    let isInteractive = false
     
-    required init() throws {
-    }
-    
-    func run() throws {
+    func run(with monitor: TestMonitor) throws {
         try testFactory()
         try testInvalidAccessGroup()
         try testInvalidateKeychains()
