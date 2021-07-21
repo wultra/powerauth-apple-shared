@@ -43,13 +43,16 @@ public extension KeychainPrompt {
     ///   - prompt: Application reason for authentication.
     ///   - fallbackTitle: Allows fallback button title customization. If set to empty string, the button will be hidden.
     ///   - cancelTitle: Allows cancel button title customization. A default title "Cancel" is used when this property is left nil.
-    init(with prompt: String, fallbackTitle: String? = nil, cancelTitle: String? = nil) {
+    ///   - reuseDuration: Allows this prompt to be used more than once to access the protected data, within the desired time interval.
+    ///                    This value must not exceed `LATouchIDAuthenticationMaximumAllowableReuseDuration` constant.
+    init(with prompt: String, fallbackTitle: String? = nil, cancelTitle: String? = nil, reuseDuration: TimeInterval = 0) {
         if #available(macOS 10.15, iOS 11, *) {
             // We can use context on this platform
             let context = LAContext()
             context.localizedReason = prompt
             context.localizedFallbackTitle = fallbackTitle
             context.localizedCancelTitle = cancelTitle
+            context.touchIDAuthenticationAllowableReuseDuration = reuseDuration
             self.prompt = prompt
             self.context = context
         } else {

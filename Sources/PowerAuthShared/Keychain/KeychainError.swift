@@ -33,6 +33,9 @@ public enum KeychainError: Error {
     /// User did cancel authentication dialog.
     case userCancel
     
+    /// User did fail to authenticate.
+    case authenticationFailed
+    
     /// The `KeychainPrompt` is required but not provided while getting data from the keychain.
     case missingAuthentication
     
@@ -60,6 +63,9 @@ public enum KeychainError: Error {
         
         /// Failed to create internal Access Control object.
         case failedToCraeteAccessControlObject
+        
+        /// The provided `LAContext` contains too long reuse duration.
+        case reuseDurationTooLong
         
         /// The data returned from the keychain has an unexpected type.
         case unexpectedResultType
@@ -129,6 +135,8 @@ extension KeychainError: LocalizedError {
                 return "Remove protected item first, then set new data"
             case .userCancel:
                 return "User did cancel authentication dialog"
+            case .authenticationFailed:
+                return "User did fail to authenticate"
             case .missingAuthentication:
                 return "KeychainPrompt is required for accessing this item"
             case .disabledAuthentication:
@@ -148,6 +156,8 @@ extension KeychainError.OtherReason: LocalizedError {
                 return "Keychain instance is no longer valid"
             case .failedToCraeteAccessControlObject:
                 return "Failed to create Access Control object"
+            case .reuseDurationTooLong:
+                return "KeychainPrompt or LAContext contains too long reuse duration"
             case .unexpectedResultType:
                 return "Query returned an unexpected object"
             case .securityFrameworkOther(let errorCode):

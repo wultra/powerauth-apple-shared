@@ -73,13 +73,16 @@ final class AppleKeychain: PrivateKeychain {
             // Prepare query
             let queryBuilder = baseQuery()
                 .returnData(forKey: key)
+            let biometryWasOk: Bool
             if let authentication = authentication {
                 guard BiometryInfo.canUseBiometricAuthentication else {
                     throw KeychainError.biometryNotAvailable
                 }
                 queryBuilder.set(prompt: authentication)
+                biometryWasOk = true
             } else {
                 queryBuilder.setNoUI()
+                biometryWasOk = false
             }
             let query = try queryBuilder.build()
             // Execute query
@@ -102,7 +105,11 @@ final class AppleKeychain: PrivateKeychain {
                         throw KeychainError.userCancel
                     case .authFailed:
                         // FaceID permission not granted, or other authentication failure
-                        throw KeychainError.biometryNotAvailable
+                        if biometryWasOk {
+                            throw KeychainError.authenticationFailed
+                        } else {
+                            throw KeychainError.biometryNotAvailable
+                        }
                     default:
                         break
                 }
@@ -294,7 +301,7 @@ fileprivate class QueryBuilder {
     private var query: Query
     
     private var noUI = false
-    private var usePrompt = false
+    private var prompt: KeychainPrompt? = nil
     private var returnData = false
     private var key: String?
     private var data: Data?
@@ -316,7 +323,7 @@ fileprivate class QueryBuilder {
         
         #if DEBUG
         // Inernal sanity check
-        if usePrompt && noUI {
+        if prompt != nil && noUI {
             D.fatalError("Prompt cannot be combined with noUI")
         }
         if returnData && data != nil {
@@ -324,7 +331,7 @@ fileprivate class QueryBuilder {
         }
         #endif
         
-        // Build final query
+        // Build the final query
         if returnData {
             query[kSecReturnData] = kCFBooleanTrue
         }
@@ -339,6 +346,9 @@ fileprivate class QueryBuilder {
         }
         if let access = access {
             try implSet(access: access)
+        }
+        if let prompt = prompt {
+            try implSet(prompt: prompt)
         }
         return query as CFDictionary
     }
@@ -384,6 +394,15 @@ fileprivate class QueryBuilder {
         return self
     }
     
+    /// Alternate query with provided prompt for biometric authentication dialog.
+    /// - Parameter prompt: `KeychainPrompt` structure.
+    /// - Returns: `QueryBuilder` instance.
+    @discardableResult
+    func set(prompt: KeychainPrompt) -> QueryBuilder {
+        self.prompt = prompt
+        return self
+    }
+    
     #if os(iOS) || os(macOS)
     
     // MARK: - iOS + macOS specific
@@ -405,18 +424,18 @@ fileprivate class QueryBuilder {
     
     /// Alternate query with provided prompt for biometric authentication dialog.
     /// - Parameter prompt: `KeychainPrompt` structure.
-    /// - Returns: `QueryBuilder` instance.
-    @discardableResult
-    func set(prompt: KeychainPrompt) -> QueryBuilder {
-        usePrompt = true
+    /// - Throws: `KeychainError.other` in case that reuse duration in `LAContext` is too long.
+    private func implSet(prompt: KeychainPrompt) throws {
         if #available(iOS 11.0, *) {
             if let context = prompt.asLAContext {
+                guard context.touchIDAuthenticationAllowableReuseDuration < LATouchIDAuthenticationMaximumAllowableReuseDuration else {
+                    throw KeychainError.other(reason: .reuseDurationTooLong)
+                }
                 query[kSecUseAuthenticationContext] = context
-                return self
+                return
             }
         }
         query[kSecUseOperationPrompt] = prompt.prompt
-        return self
     }
     
     /// Alternate query by adding `SecAccessControlObject` with protection level required for this item.
@@ -459,17 +478,14 @@ fileprivate class QueryBuilder {
     
     /// Alternate query with provided prompt for biometric authentication dialog.
     /// - Parameter prompt: `KeychainPrompt` structure.
-    /// - Returns: `QueryBuilder` instance.
-    @discardableResult
-    func set(prompt: KeychainPrompt) -> QueryBuilder {
-        usePrompt = true
-        return self
+    /// - Throws: `KeychainError.other` in case that reuse duration in `LAContext` is too long.
+    private func implSet(prompt: KeychainPrompt) throws {
+        // Empty on purpose
     }
     
     /// Alternate query by adding `SecAccessControlObject` with protection level required for this item.
     /// - Parameter access: Type of item access protection.
     /// - Throws: `KeychainError.other` - in case that SAC object cannot be created.
-    @discardableResult
     func implSet(access: KeychainItemAccess) throws {
         // Empty on purpose
     }
