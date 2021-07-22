@@ -100,6 +100,7 @@ public final class FakeKeychain: Keychain {
                 guard let authentication = authentication else {
                     throw KeychainError.missingAuthentication
                 }
+                #if os(iOS) || os(macOS)
                 if #available(iOS 11.0, *) {
                     if let context = authentication.asLAContext {
                         guard !context.interactionNotAllowed else {
@@ -110,6 +111,7 @@ public final class FakeKeychain: Keychain {
                         }
                     }
                 }
+                #endif // os(iOS) || os(macOS)
                 switch authenticate(with: authentication) {
                     case .success:
                         break

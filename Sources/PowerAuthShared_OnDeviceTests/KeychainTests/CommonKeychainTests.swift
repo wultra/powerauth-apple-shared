@@ -16,7 +16,9 @@
 
 import Foundation
 import PowerAuthShared
+#if os(iOS) || os(macOS)
 import LocalAuthentication
+#endif
 
 /// Contains battery of common tests for any Keychain implementation.
 class CommonKeychainTests: BaseTestCase {
@@ -32,9 +34,11 @@ class CommonKeychainTests: BaseTestCase {
         // Doesn't require user's interaction
         register(methodName: "testStoreRestoreData") { try self.testStoreRestoreData(monitor: $0) }
         register(methodName: "testMissingAuthentication") { try self.testMissingAuthentication(monitor: $0) }
-        register(methodName: "testDisabledAuthentication") { try self.testDisabledAuthentication(monitor: $0) }
         register(methodName: "testUpdateProtectedItem") { try self.testUpdateProtectedItem(monitor: $0) }
         register(methodName: "testUpdateAndProtect") { try self.testUpdateAndProtect(monitor: $0) }
+        // exclute tests that require LAContext or authentication on tvOS and watchOS
+        #if os(iOS) || os(macOS)
+        register(methodName: "testDisabledAuthentication") { try self.testDisabledAuthentication(monitor: $0) }
         // Requires user's interaction
         register(methodName: "testBiometricAuthentication") { try self.testBiometricAuthentication(monitor: $0) }
         register(methodName: "testBiometricAuthenticationWithContext") { try self.testBiometricAuthenticationWithContext(monitor: $0) }
@@ -44,6 +48,7 @@ class CommonKeychainTests: BaseTestCase {
         register(methodName: "testBiometryLockout") { try self.testBiometryLockout(monitor: $0) }
         register(methodName: "testNoEnrolledBiometry") { try self.testNoEnrolledBiometry(monitor: $0) }
         register(methodName: "testNoAvailableBiometry") { try self.testNoAvailableBiometry(monitor: $0) }
+        #endif
     }
     
     /// Return keychain from external provider. Subclass must implement this method.
@@ -136,38 +141,6 @@ class CommonKeychainTests: BaseTestCase {
             }
     }
     
-    
-    /// Test for accessing protected item with prompt, configured with `LAContext` with disabled interaction.
-    /// The expected result is `KeychainError.disabledAuthentication` is reported.
-    func testDisabledAuthentication(monitor: TestMonitor) throws {
-
-        guard let keychain = try getKeychain(forTest: "testDisabledAuthentication", monitor: monitor) else {
-            return
-        }
-        
-        guard #available(iOS 11.0, macOS 10.15, *) else {
-            D.error("--- \(name).testDisabledAuthentication require iOS 11, macOS 10.15 to run")
-            return
-        }
-        
-        let randomData1 = Data.random(count: 128)
-        let testKey = "AuthKey2"
-        
-        try [ KeychainItemAccess.anyBiometricSet, .anyBiometricSetOrDevicePasscode, .currentBiometricSet]
-            .forEach { access in
-                try keychain.remove(forKey: testKey)
-                try keychain.set(randomData1, forKey: testKey, access: access)
-                do {
-                    let context = LAContext()
-                    context.localizedReason = "PowerAuthShared tests"
-                    context.interactionNotAllowed = true
-                    _ = try keychain.data(forKey: testKey, authentication: KeychainPrompt(with: context))
-                    try alwaysFail()
-                } catch KeychainError.disabledAuthentication {
-                }
-            }
-    }
-    
     /// Test for updating already protected item. The expected result is that it's not possible to update protected item and application
     /// must remove data first and then set new value.
     func testUpdateProtectedItem(monitor: TestMonitor) throws {
@@ -226,9 +199,43 @@ class CommonKeychainTests: BaseTestCase {
                 }
             }
     }
-
-    // MARK: - With authentication
     
+    // Exclute tests that require LAContext or authentication on tvOS and watchOS
+    
+    #if os(iOS) || os(macOS)
+    
+    /// Test for accessing protected item with prompt, configured with `LAContext` with disabled interaction.
+    /// The expected result is `KeychainError.disabledAuthentication` is reported.
+    func testDisabledAuthentication(monitor: TestMonitor) throws {
+
+        guard let keychain = try getKeychain(forTest: "testDisabledAuthentication", monitor: monitor) else {
+            return
+        }
+        
+        guard #available(iOS 11.0, macOS 10.15, *) else {
+            D.warning("--- \(name).testDisabledAuthentication require iOS 11, macOS 10.15 to run")
+            return
+        }
+        
+        let randomData1 = Data.random(count: 128)
+        let testKey = "AuthKey2"
+        
+        try [ KeychainItemAccess.anyBiometricSet, .anyBiometricSetOrDevicePasscode, .currentBiometricSet]
+            .forEach { access in
+                try keychain.remove(forKey: testKey)
+                try keychain.set(randomData1, forKey: testKey, access: access)
+                do {
+                    let context = LAContext()
+                    context.localizedReason = "PowerAuthShared tests"
+                    context.interactionNotAllowed = true
+                    _ = try keychain.data(forKey: testKey, authentication: KeychainPrompt(with: context))
+                    try alwaysFail()
+                } catch KeychainError.disabledAuthentication {
+                }
+            }
+    }
+    
+    // MARK: - With authentication
     
     /// Test for accessing a biometry protected data with using standard `KeychainPrompt` structure.
     func testBiometricAuthentication(monitor: TestMonitor) throws {
@@ -436,4 +443,5 @@ class CommonKeychainTests: BaseTestCase {
         }
         try biometryUnavailableTests(keychain: keychain, monitor: monitor)
     }
+    #endif // os(iOS) || os(macOS)
 }

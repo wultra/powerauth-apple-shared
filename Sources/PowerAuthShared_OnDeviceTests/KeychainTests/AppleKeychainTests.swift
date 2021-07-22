@@ -16,7 +16,6 @@
 
 import Foundation
 import PowerAuthShared
-import LocalAuthentication
 
 class AppleKeychainTests: CommonKeychainTests {
     
