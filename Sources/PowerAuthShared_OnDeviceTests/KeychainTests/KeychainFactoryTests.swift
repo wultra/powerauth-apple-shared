@@ -17,7 +17,8 @@
 import Foundation
 import PowerAuthShared
 
-final class KeychainFactoryTests: TestCase {
+/// The `KeychainFactoryTests` implements tests of
+final class KeychainFactoryTests: BaseTestCase {
     
     let keychainName1 = "com.wultra.powerAuthShared.keychain1"
     let keychainName2 = "com.wultra.powerAuthShared.keychain2"
@@ -26,14 +27,13 @@ final class KeychainFactoryTests: TestCase {
     let accessGroup1 = "com.wultra.powerAuthShared.accessGroup1"
     let accessGroup2 = "com.wultra.powerAuthShared.accessGroup2"
     
-    let name = "KeychainFactoryTests"
-    let isInteractive = false
-    
-    func run(with monitor: TestMonitor) throws {
-        try testFactory()
-        try testInvalidAccessGroup()
-        try testInvalidateKeychains()
-        try testReleaseFactory()
+    init() {
+        super.init(testCaseName: "KeychainFactoryTests", interactive: false)
+        register(methodName: "testFactory") { _ in try self.testFactory() }
+        register(methodName: "testInvalidAccessGroup") { _ in try self.testInvalidAccessGroup() }
+        register(methodName: "testInvalidateKeychains") { _ in try self.testInvalidateKeychains() }
+        register(methodName: "testInvalidateKeychains") { _ in try self.testReleaseFactory() }
+        register(methodName: "testRemoveContentOnFirstAccess") { _ in try self.testRemoveContentOnFirstAccess() }
     }
     
     func testFactory() throws {
@@ -127,5 +127,38 @@ final class KeychainFactoryTests: TestCase {
                 try alwaysFail()
             }
         }
+    }
+    
+    func testRemoveContentOnFirstAccess() throws {
+        let randomData1 = Data.random(count: 16)
+        let testKey = "PreserveKey"
+        let factory1 = KeychainFactory(removeContentOnFirstAccess: true)
+        
+        let k1_1 = try factory1.keychain(identifier: keychainName1)
+        try k1_1.set(randomData1, forKey: testKey)
+        try assertEqual(randomData1, k1_1.data(forKey: testKey))
+        
+        // After clear, the content of newly created keychain instance should be preserved.
+        // This tests whether `removeContentOnFirstAccess` option is properly implemented.
+        
+        factory1.removeAllCachedInstances()
+        let k1_2 = try factory1.keychain(identifier: keychainName1)
+        try assertFalse(k1_1 === k1_2) // must be different instance
+        try assertEqual(randomData1, k1_2.data(forKey: testKey))
+     
+        // Now create a new factory, but with `removeContentOnFirstAccess` set to false
+        // This simulates application restart.
+        
+        let factory2 = KeychainFactory(removeContentOnFirstAccess: false)
+        let k1_3 = try factory2.keychain(identifier: keychainName1)
+        try assertFalse(k1_1 === k1_3) // must be different instance
+        try assertEqual(randomData1, k1_3.data(forKey: testKey))
+        
+        // Now create a new factory, but with `removeContentOnFirstAccess` set back to true
+        
+        let factory3 = KeychainFactory(removeContentOnFirstAccess: true)
+        let k1_4 = try factory3.keychain(identifier: keychainName1)
+        try assertFalse(k1_1 === k1_4) // must be different instance
+        try assertNil(k1_4.data(forKey: testKey))
     }
 }

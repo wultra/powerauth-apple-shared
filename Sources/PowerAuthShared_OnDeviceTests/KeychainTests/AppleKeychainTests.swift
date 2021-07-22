@@ -28,8 +28,6 @@ class AppleKeychainTests: CommonKeychainTests {
     
     override func getKeychain(forTest testName: String, monitor: TestMonitor, biometry: BiometryInfo.BiometryStatus) throws -> Keychain? {
         
-        D.print("--- \(name).\(testName)")
-        
         let bi = BiometryInfo.current
 
         if biometry != bi.currentStatus {

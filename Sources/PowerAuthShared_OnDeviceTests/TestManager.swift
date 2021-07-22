@@ -131,7 +131,7 @@ public class TestManager: TestMonitor {
         
         promptForInteraction?(message)
         
-        let padding = 16
+        let padding = 12
         let row = String(repeating: "*", count: message.count + padding)
         let spc = String(repeating: " ", count: message.count + padding)
         let pad = String(repeating: " ", count: padding/2)

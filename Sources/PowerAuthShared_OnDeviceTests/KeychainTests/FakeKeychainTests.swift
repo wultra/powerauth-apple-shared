@@ -17,18 +17,19 @@
 import Foundation
 import PowerAuthShared
 
+/// The `FakeKeychainTests` run all common keychain tests on `FakeKeychain` implementation.
 class FakeKeychainTests: CommonKeychainTests {
 
     let dumpOperations: Bool
     
+    /// Initialize test with options.
+    /// - Parameter dumpOperations: If `true` then fake keychain will dump all operations.
     init(dumpOperations: Bool) {
         self.dumpOperations = dumpOperations
         super.init(testCaseName: "FakeKeychainTests", interactive: false)
     }
     
     override func getKeychain(forTest testName: String, monitor: TestMonitor, biometry: BiometryInfo.BiometryStatus) throws -> Keychain? {
-        
-        D.print("--- \(name).\(testName)")
         
         let keychain = FakeKeychain(identifier: keychainIdentifier, dumpOperations: dumpOperations)
         

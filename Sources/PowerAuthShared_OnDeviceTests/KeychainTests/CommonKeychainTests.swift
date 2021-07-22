@@ -18,10 +18,15 @@ import Foundation
 import PowerAuthShared
 import LocalAuthentication
 
+/// Contains battery of common tests for any Keychain implementation.
 class CommonKeychainTests: BaseTestCase {
     
     let keychainIdentifier = "testKeychain.CommonKeychainTests"
     
+    /// Initialize test case with parameters.
+    /// - Parameters:
+    ///   - testCaseName: Name of test case, will be used in debug logs.
+    ///   - interactive: If `true` then the keychain implementation require user's interaction.
     override init(testCaseName: String, interactive: Bool) {
         super.init(testCaseName: testCaseName, interactive: interactive)
         // Doesn't require user's interaction
@@ -389,6 +394,7 @@ class CommonKeychainTests: BaseTestCase {
         let randomData1 = Data.random(count: 48)
         let testKey = "AuthKey8"
         
+        // Try to set protected item when biometry is not available.
         try [ KeychainItemAccess.anyBiometricSet, .anyBiometricSetOrDevicePasscode, .currentBiometricSet]
             .forEach { access in
                 do {
@@ -399,6 +405,7 @@ class CommonKeychainTests: BaseTestCase {
             }
     }
     
+    /// Test whether basic functionality works when biometry is not supported.
     func testNoBiometrySupport(monitor: TestMonitor) throws {
         guard let keychain = try getKeychain(forTest: "testNoBiometrySupport", monitor: monitor, biometry: .notSupported) else {
             return
@@ -406,6 +413,7 @@ class CommonKeychainTests: BaseTestCase {
         try biometryUnavailableTests(keychain: keychain, monitor: monitor)
     }
     
+    /// Test whether basic functionality works when biometry is locked out.
     func testBiometryLockout(monitor: TestMonitor) throws {
         guard let keychain = try getKeychain(forTest: "testBiometryLockout", monitor: monitor, biometry: .lockout) else {
             return
@@ -413,6 +421,7 @@ class CommonKeychainTests: BaseTestCase {
         try biometryUnavailableTests(keychain: keychain, monitor: monitor)
     }
     
+    /// Test whether basic functionality works when biometry is not enrolled.
     func testNoEnrolledBiometry(monitor: TestMonitor) throws {
         guard let keychain = try getKeychain(forTest: "testNoEnrolledBiometry", monitor: monitor, biometry: .notEnrolled) else {
             return
@@ -420,6 +429,7 @@ class CommonKeychainTests: BaseTestCase {
         try biometryUnavailableTests(keychain: keychain, monitor: monitor)
     }
     
+    /// Test whether basic functionality works when biometry is not available.
     func testNoAvailableBiometry(monitor: TestMonitor) throws {
         guard let keychain = try getKeychain(forTest: "testNoAvailableBiometry", monitor: monitor, biometry: .notAvailable) else {
             return

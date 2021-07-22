@@ -16,18 +16,44 @@
 
 import Foundation
 
+/// Class that implements universal test bed for tests.
+///
+/// Example of usage:
+/// ```swift
+/// class YourTestClass: BaseTestCase {
+///
+///     public init() {
+///         super.init(testCaseName: "YourTestClass", interactive: false)
+///         register(methodName: "testMethod") { try self.testMethod(monitor: $0) }
+///     }
+///
+///     func testMethod(monitor: TestMonitor) throws {
+///         // Your test implementation
+///     }
+/// }
+/// ```
 open class BaseTestCase: TestCase {
 
     public let name: String
     public let isInteractive: Bool
+    
+    /// List of registered test methods.
     var testMethods: [(String, (TestMonitor) throws -> Void)]
    
+    /// Initialize test case with parameters. Subclass should register tests in its initialized.
+    /// - Parameters:
+    ///   - testCaseName: Name of test case, will be used in debug logs.
+    ///   - interactive: If `true` then the keychain implementation require user's interaction.
     public init(testCaseName: String, interactive: Bool) {
         self.name = testCaseName
         self.isInteractive = interactive
         self.testMethods = []
     }
 
+    /// Register test method that'll be
+    /// - Parameters:
+    ///   - methodName: Name of test method, will be used in debug logs.
+    ///   - method: Closure with test method.
     public func register(methodName: String, _ method: @escaping (TestMonitor) throws -> Void) {
         testMethods.append((methodName, method))
     }
@@ -36,6 +62,7 @@ open class BaseTestCase: TestCase {
         var firstError: Error?
         testMethods.forEach { methodName, method in
             do {
+                D.print("--- \(name).\(methodName)")
                 monitor.increaseTestCount()
                 try method(monitor)
             } catch {

@@ -18,12 +18,13 @@ import Foundation
 
 public extension TestManager {
     
+    /// Returns test manager configured to run all keychain related tests.
     static var allKeychainTests: TestManager {
         TestManager(name: "Keychain") {
             [
-                AppleKeychainTests(),
+                KeychainFactoryTests(),
                 FakeKeychainTests(dumpOperations: false),
-                KeychainFactoryTests()
+                AppleKeychainTests()
             ]
         }
     }
