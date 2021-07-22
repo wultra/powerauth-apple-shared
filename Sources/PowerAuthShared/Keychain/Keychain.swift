@@ -36,6 +36,7 @@ public protocol Keychain: AnyObject {
     ///
     /// - Parameter key: Key to evaluate.
     /// - Throws:
+    ///   - `KeychainError.invalidKey` in case you provide an invalid or empty key.
     ///   - `KeychainError.other` in case of unexpected error.
     /// - Returns: `true` if keychain contains data for the requested key.
     func containsData(forKey key: String) throws -> Bool
@@ -44,6 +45,7 @@ public protocol Keychain: AnyObject {
     ///
     /// - Parameter key: Key to data to remove.
     /// - Throws:
+    ///   - `KeychainError.invalidKey` in case you provide an invalid or empty key.
     ///   - `KeychainError.other` in case of unexpected error.
     func remove(forKey key: String) throws
     
@@ -65,6 +67,7 @@ public protocol Keychain: AnyObject {
     ///   - `KeychainError.biometryNotAvailable` if biometric authentication is requested but is not available on the device.
     ///   - `KeychainError.missingAuthentication` if item requires user to authenticate but authentication object is missing.
     ///   - `KeychainError.disabledAuthentication` if keychain prompt is provided, but cointains `LAContext` that does not allow interaction.
+    ///   - `KeychainError.invalidKey` in case you provide an invalid or empty key.
     ///   - `KeychainError.other` in case of other error.
     /// - Returns: Retrieved data or `nil` if keychain has no such item stored for given key.
     func data(forKey key: String, authentication: KeychainPrompt?) throws -> Data?
@@ -79,9 +82,10 @@ public protocol Keychain: AnyObject {
     ///   - replace: If `true` then existing value is replaced. If set to `false` then throws error if item already exists.
     /// - Throws:
     ///   - `KeychainError.itemExists` if `replace` is `false` and data already exists in the keychain.
-    ///   - `KeychainError.biometryNotAvailable` if other than `KeychainItemAccess.none` is requested and biometric authentication is not available right now.
     ///   - `KeychainError.removeProtectedItemFirst` if overwriting item with `KeychainItemAccess` protection. You must remove such item first and then set the new value.
+    ///   - `KeychainError.biometryNotAvailable` if other than `KeychainItemAccess.none` is requested and biometric authentication is not available right now.
     ///   - `KeychainError.changedFromElsewhere` if content of keychain has been modified from other application or process.
+    ///   - `KeychainError.invalidKey` in case you provide an invalid or empty key.
     ///   - `KeychainError.other` for all other underlying failures.
     func set(_ data: Data, forKey key: String, access: KeychainItemAccess, replace: Bool) throws
 }
@@ -103,6 +107,7 @@ public extension Keychain {
     ///   - `KeychainError.missingAuthentication` if item requires user to authenticate but authentication object is missing.
     ///   - `KeychainError.disabledAuthentication` if keychain prompt is provided, but cointains `LAContext` that does not allow interaction.
     ///   - `KeychainError.changedFromElsewhere` if content of keychain has been modified from other application or process.
+    ///   - `KeychainError.invalidKey` in case you provide an invalid or empty key.
     ///   - `KeychainError.other` in case of other error.
     /// - Returns: Previously stored data or new one, created by provided closure.
     func data(forKey key: String, authentication: KeychainPrompt, orSet closure: @autoclosure () throws -> (newData: Data, access: KeychainItemAccess)) throws -> Data {
@@ -132,6 +137,7 @@ public extension Keychain {
     /// - Throws:
     ///   - `KeychainError.missingAuthentication` if item requires user to authenticate but authentication object is missing.
     ///   - `KeychainError.changedFromElsewhere` if content of keychain has been modified from other application or process.
+    ///   - `KeychainError.invalidKey` in case you provide an invalid or empty key.
     ///   - `KeychainError.other` in case of other error.
     /// - Returns: Previously stored data or new one, created by provided closure.
     func data(forKey key: String, orSet closure: @autoclosure () throws -> Data) throws -> Data {
@@ -156,6 +162,7 @@ public extension Keychain {
     /// - Parameter key: Key to previously stored data.
     /// - Throws:
     ///   - `KeychainError.missingAuthentication` if item requires user to authenticate but authentication object is missing.
+    ///   - `KeychainError.invalidKey` in case you provide an invalid or empty key.
     ///   - `KeychainError.other` in case of other error.
     /// - Returns: Retrieved data or `nil` if keychain has no such item stored for given key.
     func data(forKey key: String) throws -> Data? {
@@ -171,6 +178,7 @@ public extension Keychain {
     /// - Throws:
     ///   - `KeychainError.removeProtectedItemFirst` if overwriting item with `KeychainItemAccess` protection. You must remove such item first and then set the new value.
     ///   - `KeychainError.changedFromElsewhere` if content of keychain has been modified from other application or process.
+    ///   - `KeychainError.invalidKey` in case you provide an invalid or empty key.
     ///   - `KeychainError.other` for all other underlying failures.
     func set(_ data: Data, forKey key: String) throws {
         return try set(data, forKey: key, access: .none, replace: true)
@@ -186,6 +194,7 @@ public extension Keychain {
     ///   - `KeychainError.biometryNotAvailable` if other than `KeychainItemAccess.none` is requested and biometric authentication is not available right now.
     ///   - `KeychainError.removeProtectedItemFirst` if overwriting item with `KeychainItemAccess` protection. You must remove such item first and then set the new value.
     ///   - `KeychainError.changedFromElsewhere` if content of keychain has been modified from other application or process.
+    ///   - `KeychainError.invalidKey` in case you provide an invalid or empty key.
     ///   - `KeychainError.other` for all other underlying failures.
     func set(_ data: Data, forKey key: String, access: KeychainItemAccess) throws {
         return try set(data, forKey: key, access: access, replace: true)
