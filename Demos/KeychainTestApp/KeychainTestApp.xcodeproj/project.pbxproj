@@ -1,0 +1,521 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 52;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		BF069C4926A5A7260080C0A3 /* PowerAuthShared in Frameworks */ = {isa = PBXBuildFile; productRef = BF069C4826A5A7260080C0A3 /* PowerAuthShared */; };
+		BF069C4B26A5A7260080C0A3 /* PowerAuthShared_OnDeviceTests in Frameworks */ = {isa = PBXBuildFile; productRef = BF069C4A26A5A7260080C0A3 /* PowerAuthShared_OnDeviceTests */; };
+		BF069C4E26A5B1440080C0A3 /* PowerAuthShared in Frameworks */ = {isa = PBXBuildFile; productRef = BF069C4D26A5B1440080C0A3 /* PowerAuthShared */; };
+		BF069C5026A5B1440080C0A3 /* PowerAuthShared_OnDeviceTests in Frameworks */ = {isa = PBXBuildFile; productRef = BF069C4F26A5B1440080C0A3 /* PowerAuthShared_OnDeviceTests */; };
+		BF39375C269F0D1600B4B481 /* KeychainTestAppApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF393733269F0D1200B4B481 /* KeychainTestAppApp.swift */; };
+		BF39375D269F0D1600B4B481 /* KeychainTestAppApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF393733269F0D1200B4B481 /* KeychainTestAppApp.swift */; };
+		BF39375E269F0D1600B4B481 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF393734269F0D1200B4B481 /* ContentView.swift */; };
+		BF39375F269F0D1600B4B481 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF393734269F0D1200B4B481 /* ContentView.swift */; };
+		BF393760269F0D1600B4B481 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BF393735269F0D1600B4B481 /* Assets.xcassets */; };
+		BF393761269F0D1600B4B481 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BF393735269F0D1600B4B481 /* Assets.xcassets */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		BF069C4226A5A4490080C0A3 /* powerauth-apple-shared */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "powerauth-apple-shared"; path = ../..; sourceTree = "<group>"; };
+		BF393733269F0D1200B4B481 /* KeychainTestAppApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainTestAppApp.swift; sourceTree = "<group>"; };
+		BF393734269F0D1200B4B481 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		BF393735269F0D1600B4B481 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		BF39373A269F0D1600B4B481 /* KeychainTestApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = KeychainTestApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		BF39373D269F0D1600B4B481 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		BF393742269F0D1600B4B481 /* KeychainTestApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = KeychainTestApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		BF393744269F0D1600B4B481 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		BF393745269F0D1600B4B481 /* macOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = macOS.entitlements; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		BF393737269F0D1600B4B481 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BF069C4B26A5A7260080C0A3 /* PowerAuthShared_OnDeviceTests in Frameworks */,
+				BF069C4926A5A7260080C0A3 /* PowerAuthShared in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BF39373F269F0D1600B4B481 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BF069C5026A5B1440080C0A3 /* PowerAuthShared_OnDeviceTests in Frameworks */,
+				BF069C4E26A5B1440080C0A3 /* PowerAuthShared in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		BF069C4626A5A6130080C0A3 /* Dependencies */ = {
+			isa = PBXGroup;
+			children = (
+				BF069C4226A5A4490080C0A3 /* powerauth-apple-shared */,
+			);
+			name = Dependencies;
+			sourceTree = "<group>";
+		};
+		BF069C4C26A5B1440080C0A3 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		BF39372D269F0D1200B4B481 = {
+			isa = PBXGroup;
+			children = (
+				BF393732269F0D1200B4B481 /* Shared */,
+				BF39373C269F0D1600B4B481 /* iOS */,
+				BF393743269F0D1600B4B481 /* macOS */,
+				BF069C4626A5A6130080C0A3 /* Dependencies */,
+				BF39373B269F0D1600B4B481 /* Products */,
+				BF069C4C26A5B1440080C0A3 /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		BF393732269F0D1200B4B481 /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				BF393773269F11DB00B4B481 /* Tests */,
+				BF393733269F0D1200B4B481 /* KeychainTestAppApp.swift */,
+				BF393734269F0D1200B4B481 /* ContentView.swift */,
+				BF393735269F0D1600B4B481 /* Assets.xcassets */,
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
+		BF39373B269F0D1600B4B481 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				BF39373A269F0D1600B4B481 /* KeychainTestApp.app */,
+				BF393742269F0D1600B4B481 /* KeychainTestApp.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		BF39373C269F0D1600B4B481 /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				BF39373D269F0D1600B4B481 /* Info.plist */,
+			);
+			path = iOS;
+			sourceTree = "<group>";
+		};
+		BF393743269F0D1600B4B481 /* macOS */ = {
+			isa = PBXGroup;
+			children = (
+				BF393744269F0D1600B4B481 /* Info.plist */,
+				BF393745269F0D1600B4B481 /* macOS.entitlements */,
+			);
+			path = macOS;
+			sourceTree = "<group>";
+		};
+		BF393773269F11DB00B4B481 /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Tests;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		BF393739269F0D1600B4B481 /* KeychainTestApp (iOS) */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = BF393764269F0D1600B4B481 /* Build configuration list for PBXNativeTarget "KeychainTestApp (iOS)" */;
+			buildPhases = (
+				BF393736269F0D1600B4B481 /* Sources */,
+				BF393737269F0D1600B4B481 /* Frameworks */,
+				BF393738269F0D1600B4B481 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "KeychainTestApp (iOS)";
+			packageProductDependencies = (
+				BF069C4826A5A7260080C0A3 /* PowerAuthShared */,
+				BF069C4A26A5A7260080C0A3 /* PowerAuthShared_OnDeviceTests */,
+			);
+			productName = "KeychainTestApp (iOS)";
+			productReference = BF39373A269F0D1600B4B481 /* KeychainTestApp.app */;
+			productType = "com.apple.product-type.application";
+		};
+		BF393741269F0D1600B4B481 /* KeychainTestApp (macOS) */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = BF393767269F0D1600B4B481 /* Build configuration list for PBXNativeTarget "KeychainTestApp (macOS)" */;
+			buildPhases = (
+				BF39373E269F0D1600B4B481 /* Sources */,
+				BF39373F269F0D1600B4B481 /* Frameworks */,
+				BF393740269F0D1600B4B481 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "KeychainTestApp (macOS)";
+			packageProductDependencies = (
+				BF069C4D26A5B1440080C0A3 /* PowerAuthShared */,
+				BF069C4F26A5B1440080C0A3 /* PowerAuthShared_OnDeviceTests */,
+			);
+			productName = "KeychainTestApp (macOS)";
+			productReference = BF393742269F0D1600B4B481 /* KeychainTestApp.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		BF39372E269F0D1200B4B481 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 1250;
+				LastUpgradeCheck = 1250;
+				TargetAttributes = {
+					BF393739269F0D1600B4B481 = {
+						CreatedOnToolsVersion = 12.5.1;
+					};
+					BF393741269F0D1600B4B481 = {
+						CreatedOnToolsVersion = 12.5.1;
+					};
+				};
+			};
+			buildConfigurationList = BF393731269F0D1200B4B481 /* Build configuration list for PBXProject "KeychainTestApp" */;
+			compatibilityVersion = "Xcode 9.3";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = BF39372D269F0D1200B4B481;
+			packageReferences = (
+				BF069C4726A5A7260080C0A3 /* XCRemoteSwiftPackageReference "powerauth-apple-shared" */,
+			);
+			productRefGroup = BF39373B269F0D1600B4B481 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				BF393739269F0D1600B4B481 /* KeychainTestApp (iOS) */,
+				BF393741269F0D1600B4B481 /* KeychainTestApp (macOS) */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		BF393738269F0D1600B4B481 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BF393760269F0D1600B4B481 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BF393740269F0D1600B4B481 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BF393761269F0D1600B4B481 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		BF393736269F0D1600B4B481 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BF39375E269F0D1600B4B481 /* ContentView.swift in Sources */,
+				BF39375C269F0D1600B4B481 /* KeychainTestAppApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BF39373E269F0D1600B4B481 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BF39375F269F0D1600B4B481 /* ContentView.swift in Sources */,
+				BF39375D269F0D1600B4B481 /* KeychainTestAppApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		BF393762269F0D1600B4B481 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
+				MACOSX_DEPLOYMENT_TARGET = 11.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		BF393763269F0D1600B4B481 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
+				MACOSX_DEPLOYMENT_TARGET = 11.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+			};
+			name = Release;
+		};
+		BF393765269F0D1600B4B481 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = KTT9G859MR;
+				ENABLE_PREVIEWS = YES;
+				INFOPLIST_FILE = iOS/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.wultra.lib.KeychainTestApp;
+				PRODUCT_NAME = KeychainTestApp;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		BF393766269F0D1600B4B481 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = KTT9G859MR;
+				ENABLE_PREVIEWS = YES;
+				INFOPLIST_FILE = iOS/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.wultra.lib.KeychainTestApp;
+				PRODUCT_NAME = KeychainTestApp;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		BF393768269F0D1600B4B481 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = macOS/macOS.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = KTT9G859MR;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				INFOPLIST_FILE = macOS/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.wultra.lib.KeychainTestApp;
+				PRODUCT_NAME = KeychainTestApp;
+				SDKROOT = macosx;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		BF393769269F0D1600B4B481 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = macOS/macOS.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = KTT9G859MR;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				INFOPLIST_FILE = macOS/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.wultra.lib.KeychainTestApp;
+				PRODUCT_NAME = KeychainTestApp;
+				SDKROOT = macosx;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		BF393731269F0D1200B4B481 /* Build configuration list for PBXProject "KeychainTestApp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BF393762269F0D1600B4B481 /* Debug */,
+				BF393763269F0D1600B4B481 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		BF393764269F0D1600B4B481 /* Build configuration list for PBXNativeTarget "KeychainTestApp (iOS)" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BF393765269F0D1600B4B481 /* Debug */,
+				BF393766269F0D1600B4B481 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		BF393767269F0D1600B4B481 /* Build configuration list for PBXNativeTarget "KeychainTestApp (macOS)" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BF393768269F0D1600B4B481 /* Debug */,
+				BF393769269F0D1600B4B481 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		BF069C4726A5A7260080C0A3 /* XCRemoteSwiftPackageReference "powerauth-apple-shared" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/wultra/powerauth-apple-shared.git";
+			requirement = {
+				branch = develop;
+				kind = branch;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		BF069C4826A5A7260080C0A3 /* PowerAuthShared */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = BF069C4726A5A7260080C0A3 /* XCRemoteSwiftPackageReference "powerauth-apple-shared" */;
+			productName = PowerAuthShared;
+		};
+		BF069C4A26A5A7260080C0A3 /* PowerAuthShared_OnDeviceTests */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = BF069C4726A5A7260080C0A3 /* XCRemoteSwiftPackageReference "powerauth-apple-shared" */;
+			productName = PowerAuthShared_OnDeviceTests;
+		};
+		BF069C4D26A5B1440080C0A3 /* PowerAuthShared */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = PowerAuthShared;
+		};
+		BF069C4F26A5B1440080C0A3 /* PowerAuthShared_OnDeviceTests */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = PowerAuthShared_OnDeviceTests;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = BF39372E269F0D1200B4B481 /* Project object */;
+}

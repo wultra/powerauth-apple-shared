@@ -16,50 +16,62 @@
 
 import Foundation
 
-/// The `PowerAuthKeychainFactory` allows you to create objects implementing `PowerAuthKeychain` protocol.
+/// The `KeychainFactory` allows you to create objects implementing `Keychain` protocol.
+///
 /// The created keychain instances are internally cached. The factory class also supports an automatic cleanup
 /// of the content of keychains after application reinstallation. The content of the keychain may survive the
 /// application reinstall, depending on the operating system version. So, it's recommended to clean up all
 /// content stored in keychains after application reinstallation. To achieve this, you can keep boolean
 /// information in volatile storage that lost its content after reinstall. That's typical `UserDefauls` on iOS.
-public final class PowerAuthKeychainFactory {
+///
+/// ## Thread safety
+///
+/// All keychain objects created by this factory are thread safe, so getting or setting value for the same key
+/// is thread safe. This is guaranteed only for the context of the current process. If your application spawn
+/// more processes, or you use an application extension, then `KeychainError.changedFromElsewhere` may occur.
+public final class KeychainFactory {
     
     /// Thread synchronization primitive
     let lock = Lock()
     
-    /// If `true` then factory will remove all content of newly created `PowerAUthKeychain` instance.
+    /// If `true` then factory will remove all content of newly created `Keychain` instance.
     let removeContentOnFirstAccess: Bool
     
-    /// Cached instances of `PowerAuthKeychain` objects
-    var instances = [String:PowerAuthKeychain]()
+    /// Cached instances of `Keychain` objects
+    var instances = [String:PrivateKeychain]()
     
     /// Set of keychain identifiers that has already been cleaned up after application restart.
     var instancesAlreadyCleanedUp = Set<String>()
     
-    /// Initialize `PowerAuthKeychainFactory` with option to cleanup keychain content after first access.
+    /// Initialize `KeychainFactory` with option to cleanup keychain content after first access.
     ///
     /// - Parameter removeContentOnFirstAccess: If set, then factory will remove all content of keychain when is accessed for first time.
     public init(removeContentOnFirstAccess: Bool) {
         self.removeContentOnFirstAccess = removeContentOnFirstAccess
     }
     
-    /// Create `PowerAuthKeychain` object for a given identifier and access group.
+    deinit {
+        removeAllCachedInstances()
+    }
+    
+    /// Create `Keychain` object for a given identifier and access group.
     /// - Parameters:
     ///   - identifier: Keychain identifier.
     ///   - accessGroup: Access group for the Keychain Sharing.
-    /// - Throws: `PowerAuthKeychainError.invalidAccessGroup` if `accessGroup` parameter doesn't match previously created keychain with the same identifier.
-    /// - Returns: `PowerAuthKeychain` object.
-    public func keychain(identifier: String, accessGroup: String? = nil) throws -> PowerAuthKeychain {
+    /// - Throws:
+    ///   - `KeychainError.invalidAccessGroup` if `accessGroup` parameter doesn't match previously created keychain with the same identifier.
+    /// - Returns: `Keychain` object.
+    public func keychain(identifier: String, accessGroup: String? = nil) throws -> Keychain {
         return try lock.synchronized {
             if let keychain = instances[identifier] {
                 guard keychain.accessGroup == accessGroup else {
-                    throw PowerAuthKeychainError.invalidAccessGroup
+                    throw KeychainError.invalidAccessGroup
                 }
                 return keychain
             }
             let newKeychain = buildKeychain(identifier: identifier, accessGroup: accessGroup)
             if removeContentOnFirstAccess && !instancesAlreadyCleanedUp.contains(identifier) {
-                D.print("Removing ALL data stored in keychain: \(identifier)")
+                D.print("KeychainFactory: Removing ALL data stored in keychain: \(identifier)")
                 instancesAlreadyCleanedUp.insert(identifier)
                 try newKeychain.removeAll()
             }
@@ -68,9 +80,12 @@ public final class PowerAuthKeychainFactory {
         }
     }
     
-    /// Remove all cached `PowerAuthKeychain` instances from the factory.
+    /// Remove all cached `Keychain` instances from the factory. If you still keep a reference to previously accessed
+    /// keychain object, then this object will no longer be available for data operations.
     public func removeAllCachedInstances() {
         lock.synchronized {
+            D.print("KeychainFactory: Removing and invalidating all cached Keychain instances.")
+            instances.forEach { $0.value.invalidateInstance() }
             instances.removeAll(keepingCapacity: true)
         }
     }
@@ -79,8 +94,8 @@ public final class PowerAuthKeychainFactory {
     /// - Parameters:
     ///   - identifier: Keychain identifier.
     ///   - accessGroup: Access group
-    /// - Returns: New instance of `PowerAuthKeychain`
-    private func buildKeychain(identifier: String, accessGroup: String?) -> PowerAuthKeychain {
+    /// - Returns: New instance of `Keychain`
+    private func buildKeychain(identifier: String, accessGroup: String?) -> PrivateKeychain {
         return AppleKeychain(identifier: identifier, accessGroup: accessGroup)
     }
 }

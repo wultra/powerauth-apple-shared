@@ -14,14 +14,14 @@
 // and limitations under the License.
 //
 
-import Foundation
+import SwiftUI
+import PowerAuthShared
 
-public enum PowerAuthKeychainError: Error {
-    case alreadySet
-    case cancel
-    case missingAuthentication
-    case biometryNotAvailable
-    case biometryFailure
-    case invalidAccessGroup
-    case generalFailure(code: Int)
+@main
+struct KeychainTestAppApp: App {
+    var body: some Scene {
+        WindowGroup {
+            ContentView(biometryInfo: BiometryInfo.current)
+        }
+    }
 }
