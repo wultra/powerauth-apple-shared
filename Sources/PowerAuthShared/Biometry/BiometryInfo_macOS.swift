@@ -25,8 +25,8 @@ public extension BiometryInfo {
     /// `BiometryInfo(biometryType: .none, currentStatus: .notSupported)`.
     static var current: BiometryInfo {
         // Check if we're running in app extension context.
-        if #available(macOSApplicationExtension 10.15, *) {
-            return BiometryInfo(biometryType: .none, currentStatus: .notAvailable)
+        if SystemInfo.current.isAppExtension {
+            return BiometryInfo(biometryType: .none, currentStatus: .notSupported)
         }
         // The rest is much simpler on macOS than on iOS, due to we support 10.15+, where LAContext
         // already supports the required functionality.

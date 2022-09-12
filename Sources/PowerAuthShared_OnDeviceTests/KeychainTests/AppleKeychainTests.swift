@@ -16,6 +16,7 @@
 
 import Foundation
 import PowerAuthShared
+import LocalAuthentication
 
 class AppleKeychainTests: CommonKeychainTests {
     
@@ -23,6 +24,9 @@ class AppleKeychainTests: CommonKeychainTests {
 
     init() {
         super.init(testCaseName: "AppleKeychainTests", interactive: true)
+#if os(iOS) || os(macOS)
+        register(methodName: "testWithPreauthorizedLAContext") { try self.testWithPreauthorizedLAContext(monitor:$0) }
+#endif
     }
     
     override func getKeychain(forTest testName: String, monitor: TestMonitor, biometry: BiometryInfo.BiometryStatus) throws -> Keychain? {
@@ -45,4 +49,62 @@ class AppleKeychainTests: CommonKeychainTests {
         }
         return try AppleKeychainTests.factory.keychain(identifier: keychainIdentifier)
     }
+    
+    // Exclute tests that require LAContext or authentication on tvOS and watchOS
+    
+    #if os(iOS) || os(macOS)
+    func testWithPreauthorizedLAContext(monitor: TestMonitor) throws {
+        guard let keychain = try getKeychain(forTest: "testWithPreauthorizedLAContext", monitor: monitor, biometry: .available) else {
+            return
+        }
+        
+        guard #available(iOS 11.0, macOS 10.15, *) else {
+            D.error("--- \(name).testWithPreauthorizedLAContext require iOS 11, macOS 10.15 to run")
+            return
+        }
+        
+        let testData: [(testKey: String, access: KeychainItemAccess, data: Data)] = [
+            ("AuthKeyA1-1", .anyBiometricSet, .random(count: 16)),
+            ("AuthKeyA1-2", .anyBiometricSetOrDevicePasscode, .random(count: 16)),
+            ("AuthKeyA1-3", .currentBiometricSet, .random(count: 16))
+        ]
+        // Setup data
+        try testData.forEach { (testKey, access, data) in
+            try keychain.set(data, forKey: testKey, access: access)
+        }
+        
+        monitor.promptForInteraction("Please authenticate with biometry", wait: .long)
+        let context = try AsyncHelper<LAContext>().waitForCompletion { helper in
+            let context = LAContext()
+            context.localizedReason = "Please authenticate with biometry with LAContext"
+            context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: "Please authenticate with biometry") { result, error in
+                if result {
+                    helper.complete(withObject: context)
+                } else {
+                    helper.complete(withError: error!)
+                }
+            }
+        }
+
+        let prompt = KeychainPrompt(with: context)
+        
+        // Query for data
+        try testData.forEach { (testKey, access, data) in
+            let receivedData = try keychain.data(forKey: testKey, authentication: prompt)
+            try assertEqual(data, receivedData)
+        }
+        
+        context.invalidate()
+        
+        // Query for data
+        testData.forEach { (testKey, access, data) in
+            do {
+                _ = try keychain.data(forKey: testKey, authentication: prompt)
+                try alwaysFail()
+            } catch {
+                // This is OK
+            }
+        }
+    }
+    #endif // os(iOS) || os(macOS)
 }

@@ -19,14 +19,13 @@ import Foundation
 import LocalAuthentication
 
 public extension BiometryInfo {
-    
     /// Static property that returns full information about biometry on the system. The resturned structure contains
     /// information about supported type (Touch ID or Face ID) and also actual biometry status (N/A, not enrolled, etc.)
     /// Note that if process is running in limited sandbox, such as application extension do, then property always contain
     /// `BiometryInfo(biometryType: .none, currentStatus: .notSupported)`.
     static var current: BiometryInfo {
         // Check if we're running in app extension context.
-        if #available(iOSApplicationExtension 9.0, *) {
+        if SystemInfo.current.isAppExtension {
             return BiometryInfo(biometryType: .none, currentStatus: .notSupported)
         }
         let context = LAContext()

@@ -30,6 +30,9 @@ public struct SystemInfo {
     
     /// Application is linked with DEBUG library.
     public let isDebugLibrary: Bool
+    
+    /// Running in App Extension.
+    public let isAppExtension: Bool
 }
 
 public extension SystemInfo {
@@ -41,7 +44,8 @@ public extension SystemInfo {
             platform: platformName,
             deviceName: getDeviceName(),
             isSimulator: isSimulator,
-            isDebugLibrary: isDebugLibrary
+            isDebugLibrary: isDebugLibrary,
+            isAppExtension: isAppExtension
         )
     }
     
@@ -95,4 +99,9 @@ public extension SystemInfo {
     static let isDebugLibrary = false
     #endif
     
+    // MARK: AppExtension detection
+    
+    static var isAppExtension: Bool {
+        return Bundle.main.bundlePath.hasSuffix(".appex")
+    }
 }
